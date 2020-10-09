@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="ElaBleCommunicationUI.Views.BleConnect"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ElaBleCommunicationUI.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid x:Name="gridMain">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <!-- buttons controls -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.ColumnSpan="2">
+            <Button x:Name="btnConnect" FontFamily="Segoe MDL2 Assets" Content="&#xE71B;" FontSize="26" Width="50" Background="White" BorderThickness="2" Margin="5" Click="btnConnect_Click" ToolTip="Connecto to the tag with the configured mac address"/>
+            <Button x:Name="btnDisconnect" FontFamily="Segoe MDL2 Assets" Content="&#xEDAE;" FontSize="26" Width="50" Background="White" BorderThickness="2" Margin="5"  Click="btnDisconnect_Click" ToolTip="Disconnect from the tag"/>
+        </StackPanel>
+        <!-- Tag informations and commands -->
+        <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+            <StackPanel Margin="5">
+                <TextBlock x:Name="tbMacAddressDisplay" Text="Tag Mac Address" Margin="10,1,10,1" />
+                <TextBox x:Name="tbMacAddressValue" Text="" Margin="10,1,10,1" Padding="4"/>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <TextBlock x:Name="tbMacCommandDisplay" Text="Command" Margin="10,1,10,1" />
+                <TextBox x:Name="tbMacCommandValue" Text="" Margin="10,1,10,1" Padding="4"/>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <TextBlock x:Name="tbMacPasswordDisplay" Text="Password" Margin="10,1,10,1" />
+                <TextBox x:Name="tbMacPasswordValue" Text="" Margin="10,1,10,1" Padding="4"/>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <TextBlock x:Name="tbMacArgsDisplay" Text="Argument" Margin="10,1,10,1" />
+                <TextBox x:Name="tbMacargsValue" Text="" Margin="10,1,10,1" Padding="4"/>
+            </StackPanel>
+            <Button x:Name="btnSend" FontFamily="Segoe MDL2 Assets" Content="&#xE724;" FontSize="26" Background="White" BorderThickness="2" Click="btnSend_Click" Margin="10" Padding="5" Width="100" HorizontalAlignment="Right" ToolTip="Send Command in connected mode"/>
+        </StackPanel>
+        <!-- display send and received -->
+        <ListView x:Name="lvTagExchange" Margin="10" Grid.Row="1" Grid.Column="1" />
+    </Grid>
+</UserControl>

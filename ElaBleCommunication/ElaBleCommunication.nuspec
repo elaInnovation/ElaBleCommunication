@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ElaBleCommunication</id>
+    <version>1.0.0</version>
+    <authors>ELA Innovation Software Team</authors>
+    <owners>ELA Innovation</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Package to manage Ble Advertising and Ble Connection for ELA Innovation Ble Tags</description>
+    <copyright>Copyright 2020</copyright>
+    <tags>Bluetooth Framework.Net</tags>
+  </metadata>
+</package>

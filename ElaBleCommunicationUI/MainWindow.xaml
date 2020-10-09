@@ -1,0 +1,12 @@
+﻿<Window x:Class="ElaBleCommunicationUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ElaBleCommunicationUI"
+        mc:Ignorable="d"
+        Title="ELA Ble UI" Height="450" Width="800" Icon="Icon-Ela.ico">
+    <Grid x:Name="gridMain">
+        <TabControl x:Name="tabsBluetoothOptions" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"/>
+    </Grid>
+</Window>

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElaBleCommunicationUI", "ElaBleCommunicationUI\ElaBleCommunicationUI.csproj", "{2367BC97-C3C1-430C-A2DB-7861B52F8418}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElaBleCommunication", "ElaBleCommunication\ElaBleCommunication.csproj", "{EAB9A968-C3C0-4840-83B6-D034CEF1A2D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAB9A968-C3C0-4840-83B6-D034CEF1A2D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAB9A968-C3C0-4840-83B6-D034CEF1A2D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAB9A968-C3C0-4840-83B6-D034CEF1A2D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAB9A968-C3C0-4840-83B6-D034CEF1A2D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {355662A5-89E7-473E-B74F-5D840AB50B3F}
+	EndGlobalSection
+EndGlobal
