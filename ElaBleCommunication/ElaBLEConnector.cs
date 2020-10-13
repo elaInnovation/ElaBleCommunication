@@ -1,5 +1,5 @@
-﻿using ElaBleCommunication.Tools;
-using ElaBluetoothCommunication.Error;
+﻿using ElaBleCommunication.Error;
+using ElaBleCommunication.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -114,6 +114,7 @@ namespace ElaBleCommunication
 
         /**
          * \fn disconnectDeviceAsync
+         * \brief disconnect from bluetooth device
          */
         public uint disconnectDeviceAsync()
         {
@@ -171,7 +172,7 @@ namespace ElaBleCommunication
          */
         public async Task<uint> sendCommandAsync(String command, String password = "", String arguments = "")
         {
-            uint uiErrorCode = ErrorHandler.ERR_KO;
+            uint uiErrorCode = ErrorHandler.ERR_OK;
             try
             {
                 if(true == this.bIsConnected &&
@@ -199,7 +200,7 @@ namespace ElaBleCommunication
             {
                 throw new ElaBleException("An exception occurs while tryig to sending command from device.", ex);
             }
-            return ErrorHandler.ERR_KO;
+            return uiErrorCode;
         }
 
         /** associated event for a value changed*/

@@ -1,15 +1,15 @@
-﻿using ElaBluetoothCommunication.Error;
-using ElaBluetoothCommunication.Model;
+﻿using ElaBleCommunication.Error;
+using ElaBleCommunication.Model;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Windows.Devices.Bluetooth.Advertisement;
 
 /**
- * \namespace ElaBluetoothCommunication
+ * \namespace ElaBleCommunication
  * \brief namespace associated to the Bluetooth configuration
  */
-namespace ElaBluetoothCommunication
+namespace ElaBleCommunication
 {
     /** \brief delegate associated to the Bluetooth device */
     public delegate void NewAdvertismentreceived(ElaBleDevice device);

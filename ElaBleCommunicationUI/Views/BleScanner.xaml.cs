@@ -1,4 +1,4 @@
-﻿using ElaBluetoothCommunication;
+﻿using ElaBleCommunication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +59,7 @@ namespace ElaBleCommunicationUI.Views
         #endregion
 
         #region received event
-        private void Scanner_evAdvertisementReceived(ElaBluetoothCommunication.Model.ElaBleDevice device)
+        private void Scanner_evAdvertisementReceived(ElaBleCommunication.Model.ElaBleDevice device)
         {
             DispatcherOperation op = Dispatcher.BeginInvoke((Action)(() =>
             {

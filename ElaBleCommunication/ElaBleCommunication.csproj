@@ -48,7 +48,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="Windows">
-      <HintPath>..\ElaBluetoothCommunication\Windows\Foundation\Windows.winmd</HintPath>
+      <HintPath>Windows\Foundation\Windows.winmd</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

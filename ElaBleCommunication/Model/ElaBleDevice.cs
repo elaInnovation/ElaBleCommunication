@@ -9,7 +9,7 @@ using Windows.Storage.Streams;
  * \namespace ElaBluetoothCommunication.Model
  * \brief namespace associated to all the model used in library
  */
-namespace ElaBluetoothCommunication.Model
+namespace ElaBleCommunication.Model
 {
     /**
      * \class ElaBleDevice

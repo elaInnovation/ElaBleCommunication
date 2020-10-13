@@ -1,5 +1,5 @@
 ﻿using ElaBleCommunication;
-using ElaBluetoothCommunication.Error;
+using ElaBleCommunication.Error;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +68,7 @@ namespace ElaBleCommunicationUI.Views
             writeConsole($">>>Sending command : {this.tbMacCommandValue.Text}");
             try
             {
-                uint errorSend = await bleconnection.sendCommandAsync(this.tbMacCommandValue.Text);
+                uint errorSend = await bleconnection.sendCommandAsync(tbMacCommandValue.Text, this.tbMacPasswordValue.Text, this.tbMacargsValue.Text);
                 if (errorSend != ErrorHandler.ERR_OK)
                 {
                     writeConsole($"Send function return error code : {errorSend}");
