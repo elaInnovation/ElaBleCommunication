@@ -6,10 +6,14 @@
     <authors>ELA Innovation Software Team</authors>
     <owners>ELA Innovation</owners>
     <license type="expression">MIT</license>
-    <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/elaInnovation/ElaBleCommunication</projectUrl>
+    <icon>Images\Icon-Ela.png</icon>
+	<requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Package to manage Ble Advertising and Ble Connection for ELA Innovation Ble Tags</description>
     <copyright>Copyright 2020</copyright>
     <tags>Bluetooth Framework.Net</tags>
   </metadata>
+  <files>
+    <file src="Images\Icon-Ela.png" target="Images\" />
+  </files>
 </package>
