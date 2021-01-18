@@ -49,6 +49,6 @@ To send commandes, use the function **sendCommandAsync** to send the target comm
 
 [here_VS_Community]: https://visualstudio.microsoft.com/fr/downloads/
 
-[here_nuger_org]: https://www.nuget.org/packages/ElaBleCommunication/1.0.0
+[here_nuger_org]: https://www.nuget.org/packages/ElaBleCommunication/1.0.1
 
 
