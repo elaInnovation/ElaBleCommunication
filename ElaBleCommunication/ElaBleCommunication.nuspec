@@ -2,18 +2,18 @@
 <package >
   <metadata>
     <id>ElaBleCommunication</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <authors>ELA Innovation Software Team</authors>
     <owners>ELA Innovation</owners>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/elaInnovation/ElaBleCommunication</projectUrl>
-    <icon>Images\Icon-Ela.png</icon>
+    <icon>Images\Icon-Ela-iot.png</icon>
 	<requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Package to manage Ble Advertising and Ble Connection for ELA Innovation Ble Tags</description>
     <copyright>Copyright 2020</copyright>
     <tags>Bluetooth Framework.Net</tags>
   </metadata>
   <files>
-    <file src="Images\Icon-Ela.png" target="Images\" />
+    <file src="Images\Icon-Ela-iot.png" target="Images\" />
   </files>
 </package>

@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Icon-Ela.ico</ApplicationIcon>
+    <ApplicationIcon>Icon-Ela-iot.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -61,6 +61,7 @@
     <Compile Include="Tools\MacAddress.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Icon-Ela-iot.ico" />
     <Content Include="Icon-Ela.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
