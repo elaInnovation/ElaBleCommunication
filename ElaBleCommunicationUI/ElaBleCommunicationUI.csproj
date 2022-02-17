@@ -14,6 +14,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -109,13 +110,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ElaBleCommunication\ElaBleCommunication.csproj">
-      <Project>{eab9a968-c3c0-4840-83b6-d034cef1a2d3}</Project>
-      <Name>ElaBleCommunication</Name>
-    </ProjectReference>
+    <Resource Include="Icon-Ela.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icon-Ela.ico" />
+    <ProjectReference Include="..\ElaBleCommunication\ElaBleCommunication.csproj">
+      <Project>{479556a3-d059-44d1-846d-428b960e5630}</Project>
+      <Name>ElaBleCommunication</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
