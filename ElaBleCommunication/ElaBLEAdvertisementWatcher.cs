@@ -1,5 +1,8 @@
 ﻿using ElaBleCommunication.Error;
 using ElaBleCommunication.Model;
+using ElaBleCommunication.Tools;
+using ElaSoftwareCommon.Error;
+using ElaTagClassLibrary.ElaTags.Interoperability;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,7 +15,7 @@ using Windows.Devices.Bluetooth.Advertisement;
 namespace ElaBleCommunication
 {
     /** \brief delegate associated to the Bluetooth device */
-    public delegate void NewAdvertismentreceived(ElaBleDevice device);
+    public delegate void NewAdvertismentreceived(ElaBaseData device);
     
     /**
      * \class ElaBLEAdvertisementWatcher
@@ -24,10 +27,10 @@ namespace ElaBleCommunication
         public event NewAdvertismentreceived evAdvertisementReceived = null;
 
         /** \brief BLE Watcher declaration */
-        private BluetoothLEAdvertisementWatcher m_watcher = new BluetoothLEAdvertisementWatcher();
+        private BluetoothLEAdvertisementWatcher m_Watcher = new BluetoothLEAdvertisementWatcher();
 
         /** \brief status to handle advertisement scanner started */
-        private bool m_bStarted = false;
+        private bool m_IsStarted = false;
 
         /**
          * \fn startBluetoothScanner
@@ -36,25 +39,25 @@ namespace ElaBleCommunication
          *      + ERR_SCANNER_ALREADY_STARTED
          *      + ERR_OK
          */
-        public uint startBluetoothScanner()
+        public uint StartBluetoothScanner()
         {
             try
             {
-                if(true == this.m_bStarted)
+                if(true == m_IsStarted)
                 {
-                    return ErrorHandler.ERR_SCANNER_ALREADY_STARTED;
+                    return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_SCANNER_ALREADY_STARTED;
                 }
                 //
-                this.m_watcher.Received += Watcher_Received;
-                this.m_watcher.Start();
+                m_Watcher.Received += Watcher_Received;
+                m_Watcher.Start();
                 //
-                this.m_bStarted = true;
+                m_IsStarted = true;
             }
             catch (Exception e)
             {
                 throw new ElaBleException("An exception occurs while tryig to Start Bluetooth Scanner.", e);
             }
-            return ErrorHandler.ERR_OK;
+            return ErrorServiceHandlerBase.ERR_OK;
         }
 
         /**
@@ -64,26 +67,26 @@ namespace ElaBleCommunication
          *      + ERR_SCANNER_ALREADY_STOPPED
          *      + ERR_OK
          */
-        public uint stopBluetoothScanner()
+        public uint StopBluetoothScanner()
         {
             try
             {
-                if (false == this.m_bStarted)
+                if (false == m_IsStarted)
                 {
-                    return ErrorHandler.ERR_SCANNER_ALREADY_STOPPED;
+                    return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_SCANNER_ALREADY_STOPPED;
                 }
                 //
-                this.m_watcher.Stop();
-                this.m_watcher.Received -= Watcher_Received;
+                m_Watcher.Stop();
+                m_Watcher.Received -= Watcher_Received;
                 //
-                this.m_bStarted = false;
+                m_IsStarted = false;
             }
             catch (Exception e)
             {
-                throw new ElaBleException("An exception occurs while tryig to Stop Bluetooth Scanner.", e);
+                throw new ElaBleException("Exception while trying to stop Bluetooth scanner.", e);
             }
 
-            return ErrorHandler.ERR_OK;
+            return ErrorServiceHandlerBase.ERR_OK;
         }
 
         /**
@@ -94,8 +97,8 @@ namespace ElaBleCommunication
          */
         private void Watcher_Received(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
         {
-            ElaBleDevice device = new ElaBleDevice(args);
-            evAdvertisementReceived?.Invoke(device);
+            var device = BleDeviceTranslator.ToInteroperableObject(args);
+            if (device != null) evAdvertisementReceived?.Invoke(device);
         }
     }
 }
