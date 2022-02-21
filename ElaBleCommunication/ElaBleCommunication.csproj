@@ -18,6 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ElaTagClassLibrary" Version="2.1.10" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="System.Runtime.WindowsRuntime">
       <HintPath>Windows\Foundation\System.Runtime.WindowsRuntime.dll</HintPath>
     </Reference>
