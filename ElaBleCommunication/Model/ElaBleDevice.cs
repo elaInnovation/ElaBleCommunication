@@ -21,7 +21,7 @@ namespace ElaBleCommunication.Model
         private const UInt16 AppleCompanyId = 0x004c;
 
         /** \brief Eddystone frame identification */
-        private const String EddystoneFrameCheck = "AA-FE";
+        private const string EddystoneFrameCheck = "AA-FE";
 
         #region accessors
         /** \brief rssi value */
@@ -53,26 +53,26 @@ namespace ElaBleCommunication.Model
          */
         public ElaBleDevice(BluetoothLEAdvertisementReceivedEventArgs args)
         {
-            update(args);
+            Update(args);
         }
 
         /** 
          * \fn getiBeaconFromBytes
          * \brief function to get iBeacon from bytes array 
          */
-        public void getiBeaconFromBytes(byte[] bytes)
+        public void GetIBeaconFromBytes(byte[] bytes)
         {
             if (bytes.Length >= 22)
             {
                 //
                 if (bytes[0] != 0x02 || bytes[1] != 0x15) return;
-                this.Uuid = new Guid(
+                Uuid = new Guid(
                             BitConverter.ToInt32(bytes.Skip(2).Take(4).Reverse().ToArray(), 0),
                             BitConverter.ToInt16(bytes.Skip(6).Take(2).Reverse().ToArray(), 0),
                             BitConverter.ToInt16(bytes.Skip(8).Take(2).Reverse().ToArray(), 0),
                             bytes.Skip(10).Take(8).ToArray());
-                this.Major = BitConverter.ToUInt16(bytes.Skip(18).Take(2).Reverse().ToArray(), 0);
-                this.Minor = BitConverter.ToUInt16(bytes.Skip(20).Take(2).Reverse().ToArray(), 0);
+                Major = BitConverter.ToUInt16(bytes.Skip(18).Take(2).Reverse().ToArray(), 0);
+                Minor = BitConverter.ToUInt16(bytes.Skip(20).Take(2).Reverse().ToArray(), 0);
             }
         }
 
@@ -83,7 +83,7 @@ namespace ElaBleCommunication.Model
          * \param [in] ui : associated uint
          * \return hexa string
          */
-        private String getFormatedNid(UInt64 lui, UInt64 mui)
+        private String GetFormatedNid(UInt64 lui, UInt64 mui)
         {
             if (0 == lui && 0 == mui) return String.Empty;
             return mui.ToString("X").PadLeft(10, '0') + lui.ToString("X").PadLeft(10, '0');
@@ -95,7 +95,7 @@ namespace ElaBleCommunication.Model
          * \param [in] ui : associated uint
          * \return hexa string
          */
-        private String getFormatedBid(UInt64 ui)
+        private String GetFormatedBid(UInt64 ui)
         {
             if (0 != ui) return ui.ToString("X").PadLeft(12, '0');
             else return String.Empty;
@@ -105,17 +105,17 @@ namespace ElaBleCommunication.Model
          * \fn updateEddystoneUid
          * \brief function to get Eddystone uid based on datas 
          */
-        public void updateEddystoneUid()
+        public void UpdateEddystoneUid()
         {
-            if (this.LDataSection.Count > 2
-                && this.LDataSection[2].Length > 64)
+            if (LDataSection.Count > 2
+                && LDataSection[2].Length > 64)
             {
-                if (this.LDataSection[2].Substring(0, 5) != EddystoneFrameCheck) return;
-                this.MNid = UInt64.Parse(this.LDataSection[2].Substring(12, 14).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
-                this.LNid = UInt64.Parse(this.LDataSection[2].Substring(27, 14).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
-                this.Bid = UInt64.Parse(this.LDataSection[2].Substring(42, 17).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
-                //this.StrNid = getFormatedNid(this.LNid, this.MNid);
-                //this.StrBid = getFormatedBid(this.Bid);
+                if (LDataSection[2].Substring(0, 5) != EddystoneFrameCheck) return;
+                MNid = UInt64.Parse(LDataSection[2].Substring(12, 14).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
+                LNid = UInt64.Parse(LDataSection[2].Substring(27, 14).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
+                Bid = UInt64.Parse(LDataSection[2].Substring(42, 17).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
+                //StrNid = getFormatedNid(LNid, MNid);
+                //StrBid = getFormatedBid(Bid);
             }
         }
 
@@ -124,26 +124,26 @@ namespace ElaBleCommunication.Model
          * \brief update the ElaBleDevice configurtion from arguments from bluetooth advertiser
          * \param [in] args : argument from bluetooth advertiser
          */
-        public void update(BluetoothLEAdvertisementReceivedEventArgs args)
+        public void Update(BluetoothLEAdvertisementReceivedEventArgs args)
         {
-            this.Rssi = args.RawSignalStrengthInDBm;
-            this.LocalName = args.Advertisement.LocalName;
-            this.BluetoothAddress = args.BluetoothAddress;
-            this.Timestamp = args.Timestamp;
+            Rssi = args.RawSignalStrengthInDBm;
+            LocalName = args.Advertisement.LocalName;
+            BluetoothAddress = args.BluetoothAddress;
+            Timestamp = args.Timestamp;
 
             // advertisement datas
-            this.AdvertisementType = args.AdvertisementType.ToString();
-            this.Advertisement_flags = args.Advertisement.Flags.ToString();
-            this.LServiceUuids = new List<string>();
-            this.LServiceUuids.Clear();
+            AdvertisementType = args.AdvertisementType.ToString();
+            Advertisement_flags = args.Advertisement.Flags.ToString();
+            LServiceUuids = new List<string>();
+            LServiceUuids.Clear();
             foreach (Guid g in args.Advertisement.ServiceUuids)
             {
-                this.LServiceUuids.Add(g.ToString());
+                LServiceUuids.Add(g.ToString());
             }
 
             // update with manufacturer data
-            this.LManufacturerData = new List<string>();
-            this.LManufacturerData.Clear();
+            LManufacturerData = new List<string>();
+            LManufacturerData.Clear();
             if (args.Advertisement.ManufacturerData.Count > 0)
             {
                 string manufacturerDataString = String.Empty;
@@ -154,18 +154,18 @@ namespace ElaBleCommunication.Model
                     {
                         // Print the company ID + the raw data in hex format
                         reader.ReadBytes(data);
-                        this.LManufacturerData.Add(string.Format("0x{0}: {1}", mmanufacturerD.CompanyId.ToString("X"), BitConverter.ToString(data)));
+                        LManufacturerData.Add(string.Format("0x{0}: {1}", mmanufacturerD.CompanyId.ToString("X"), BitConverter.ToString(data)));
                         if (mmanufacturerD.CompanyId.Equals(AppleCompanyId))
                         {
-                            this.getiBeaconFromBytes(data);
+                            GetIBeaconFromBytes(data);
                         }
                     }
                 }
             }
 
             // update datasection parameters
-            this.LDataSection = new List<string>();
-            this.LDataSection.Clear();
+            LDataSection = new List<string>();
+            LDataSection.Clear();
             if (args.Advertisement.DataSections.Count > 0)
             {
                 string datasection = String.Empty;
@@ -176,13 +176,13 @@ namespace ElaBleCommunication.Model
                     {
                         reader.ReadBytes(data);
                         datasection = string.Format("{0}", BitConverter.ToString(data));
-                        this.LDataSection.Add(datasection);
+                        LDataSection.Add(datasection);
                     }
                 }
-                if (3 == this.LDataSection.Count
-                    && this.LDataSection[1].ToLower().Equals(EddystoneFrameCheck.ToLower()))
+                if (3 == LDataSection.Count
+                    && LDataSection[1].ToLower().Equals(EddystoneFrameCheck.ToLower()))
                 {
-                    this.updateEddystoneUid();
+                    UpdateEddystoneUid();
                 }
             }
         }
@@ -190,12 +190,12 @@ namespace ElaBleCommunication.Model
         /**
          * \fn getFormattedData
          */
-        public String getFormattedData()
+        public String GetFormattedData()
         {
-            return $"{this.Timestamp.ToString()};" +
-                $"{MacAddress.macAdressLongToHexa(this.BluetoothAddress)};" + 
-                $"{this.LocalName};" +
-                $"{this.Rssi};";
+            return $"{Timestamp.ToString()};" +
+                $"{MacAddress.macAdressLongToHexa(BluetoothAddress)};" + 
+                $"{LocalName};" +
+                $"{Rssi};";
         }
     }
 }
