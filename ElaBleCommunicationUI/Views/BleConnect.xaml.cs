@@ -68,7 +68,7 @@ namespace ElaBleCommunicationUI.Views
             writeConsole($">>>Sending command : {this.tbMacCommandValue.Text}");
             try
             {
-                uint errorSend = await bleconnection.sendCommandAsync(tbMacCommandValue.Text, this.tbMacPasswordValue.Text, this.tbMacargsValue.Text);
+                uint errorSend = await bleconnection.SendCommandAsync(tbMacCommandValue.Text, this.tbMacPasswordValue.Text, this.tbMacargsValue.Text);
                 if (errorSend != ErrorHandler.ERR_OK)
                 {
                     writeConsole($"Send function return error code : {errorSend}");
@@ -89,7 +89,7 @@ namespace ElaBleCommunicationUI.Views
             writeConsole($"Try to connect to tag : {this.tbMacAddressValue.Text}");
             try
             {
-                uint errorConnect = await bleconnection.connectDeviceAsync(this.tbMacAddressValue.Text);
+                uint errorConnect = await bleconnection.ConnectDeviceAsync(this.tbMacAddressValue.Text);
                 if(errorConnect != ErrorHandler.ERR_OK)
                 {
                     writeConsole($"Connect function return error code : {errorConnect}");
@@ -109,7 +109,7 @@ namespace ElaBleCommunicationUI.Views
         {
             try
             {
-                uint error = bleconnection.disconnectDeviceAsync();
+                uint error = bleconnection.DisconnectDevice();
                 if (error != ErrorHandler.ERR_OK)
                 {
                     writeConsole($"Disconnect function return error code : {error}");

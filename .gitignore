@@ -7,3 +7,5 @@ ElaBleCommunication/nuget.exe
 ElaBleCommunication/obj/
 ElaBleCommunicationUI/bin/
 ElaBleCommunicationUI/obj/
+/obj/Debug/netcoreapp3.1
+/obj/Debug/netstandard2.0

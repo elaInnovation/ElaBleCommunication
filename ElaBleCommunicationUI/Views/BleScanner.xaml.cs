@@ -38,7 +38,7 @@ namespace ElaBleCommunicationUI.Views
          */
         private void initializeInternalComponent()
         {
-            this.scanner.evAdvertisementReceived += Scanner_evAdvertisementReceived;
+            this.scanner.evAdvertisementReceived += Scanner_evAdvertisementReceived; ;
         }
 
         #region event controller
@@ -49,21 +49,26 @@ namespace ElaBleCommunicationUI.Views
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            this.scanner.startBluetoothScanner();
+            this.scanner.StartBluetoothScanner();
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            this.scanner.stopBluetoothScanner();
+            this.scanner.StopBluetoothScanner();
         }
         #endregion
 
         #region received event
-        private void Scanner_evAdvertisementReceived(ElaBleCommunication.Model.ElaBleDevice device)
+        private void Scanner_evAdvertisementReceived(ElaTagClassLibrary.ElaTags.Interoperability.ElaBaseData device)
         {
+            var formattedData = $"{device.timestamp};" +
+                $"{device.macaddress};" +
+                $"{device.localname};" +
+                $"{device.rssi};";
+
             DispatcherOperation op = Dispatcher.BeginInvoke((Action)(() =>
             {
-                this.lvBleDevice.Items.Add(device.getFormattedData());
+                this.lvBleDevice.Items.Add(formattedData);
             }));
         }
         #endregion
