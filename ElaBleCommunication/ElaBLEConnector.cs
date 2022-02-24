@@ -9,7 +9,7 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Storage.Streams;
 using ElaSoftwareCommon.Error;
-
+using System.Threading;
 
 /**
  * \namespace ElaBluetoothCommunication
@@ -36,12 +36,10 @@ namespace ElaBleCommunication
 
         /** \brief current connected device*/
         private BluetoothLEDevice m_ConnectedDevice = null;
+        private string m_ConnectedDeviceMacAddress = null;
 
         /** \brief gatt result */
         private GattDeviceServicesResult m_Gatt = null;
-
-        /** \brief internal characteristics result */
-        private GattCharacteristicsResult m_Characteristics = null;
 
         /** target characteristic */
         private GattCharacteristic m_TxNordicCharacteristic= null;
@@ -49,6 +47,7 @@ namespace ElaBleCommunication
 
         /** \brief state connection */
         private bool m_IsConnected = false;
+        private readonly SemaphoreSlim m_ConnectLock = new SemaphoreSlim(1,1);
 
         /** \brief constructor */
         public ElaBLEConnector() { }
@@ -58,61 +57,73 @@ namespace ElaBleCommunication
          */
         public async Task<uint> ConnectDeviceAsync(String macAddress)
         {
-            uint uiErrorCode = ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NOT_CONNECTED;
+            await m_ConnectLock.WaitAsync();
             try
             {
-                ulong ulMacAddress = MacAddress.macAdressHexaToLong(macAddress);
-                // try to get data
-                m_ConnectedDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(ulMacAddress);
-                if (null != m_ConnectedDevice)
+                if (m_IsConnected)
                 {
-                    m_Gatt = await m_ConnectedDevice.GetGattServicesAsync(BluetoothCacheMode.Cached);
-                    if (null != m_Gatt)
+                    if (m_ConnectedDeviceMacAddress == macAddress)
+                        return ErrorServiceHandlerBase.ERR_OK;
+                    else
+                        DisconnectDevice_MustBeUnderLock();
+                }
+
+                ulong ulMacAddress = MacAddress.macAdressHexaToLong(macAddress);
+                
+                m_ConnectedDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(ulMacAddress);
+                if (null == m_ConnectedDevice) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CONNECT_ERROR;
+                
+                m_Gatt = await m_ConnectedDevice.GetGattServicesAsync(BluetoothCacheMode.Cached);
+                if (null == m_Gatt) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CONNECT_ERROR;
+                
+                foreach (GattDeviceService service in m_Gatt.Services)
+                {
+                    if (service.Uuid.ToString() == NORDIC_UART_SERVICE)
                     {
-                        foreach (GattDeviceService service in m_Gatt.Services)
+                        bool bFoundRx = false;
+                        bool bFoundTx = false;
+
+                        var characteristics = await service.GetCharacteristicsAsync();
+                        if (characteristics.Status != GattCommunicationStatus.Success) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CONNECT_ERROR;
+
+                        foreach (var charac in characteristics.Characteristics)
                         {
-                            if(service.Uuid.ToString().Equals(NORDIC_UART_SERVICE))
+                            if (charac.Uuid.ToString() == NORDIC_UART_TX_CHAR)
                             {
-                                bool bFoundRx = false;
-                                bool bFoundTx = false;
-                                m_Characteristics = await service.GetCharacteristicsAsync();
-                                foreach (var charac in m_Characteristics.Characteristics)
+                                m_TxNordicCharacteristic = charac;
+                                bFoundTx = true;
+                            }
+                            if (charac.Uuid.ToString() == NORDIC_UART_RX_CHAR)
+                            {
+                                m_RxNordicCharacteristic = charac;
+                                var result = await m_RxNordicCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                                if (result == GattCommunicationStatus.Success)
                                 {
-                                    if(charac.Uuid.ToString().Equals(NORDIC_UART_TX_CHAR))
-                                    {
-                                        m_TxNordicCharacteristic = charac;
-                                        bFoundTx = true;
-                                    }
-                                    if (charac.Uuid.ToString().Equals(NORDIC_UART_RX_CHAR))
-                                    {
-                                        m_RxNordicCharacteristic = charac;
-                                        var result = await m_RxNordicCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
-                                        if (result == GattCommunicationStatus.Success)
-                                        {
-                                            m_RxNordicCharacteristic.ValueChanged += AssociatedCharacteristic_ValueChanged;
-                                        }
-                                        bFoundRx = true;
-                                    }
-                                    //
-                                    if(true == bFoundRx && true == bFoundTx)
-                                    {
-                                        m_IsConnected = true;
-                                        uiErrorCode = ErrorServiceHandlerBase.ERR_OK;
-                                    }
-                                }
+                                    m_RxNordicCharacteristic.ValueChanged += AssociatedCharacteristic_ValueChanged;
+                                    bFoundRx = true;
+                                }                                
+                            }
+                            //
+                            if (true == bFoundRx && true == bFoundTx)
+                            {
+                                m_IsConnected = true;
+                                m_ConnectedDeviceMacAddress = macAddress;
+                                return ErrorServiceHandlerBase.ERR_OK;
                             }
                         }
                     }
                 }
+
+                return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CONNECT_ERROR;
             }
             catch (Exception ex)
             {
-                m_IsConnected = false;
-                //return ErrorServiceHandlerBase.ERR_CONNECT_ERROR;
                 throw new ElaBleException($"Exception while trying to connect to device {macAddress}.", ex);
             }
-            //
-            return uiErrorCode;
+            finally
+            {
+                m_ConnectLock.Release();
+            }
         }
 
         /**
@@ -121,9 +132,28 @@ namespace ElaBleCommunication
          */
         public uint DisconnectDevice()
         {
+            m_ConnectLock.Wait();
             try
             {
-                if(null != m_TxNordicCharacteristic)
+                return DisconnectDevice_MustBeUnderLock();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                m_ConnectLock.Release();
+            }
+        }
+
+        private uint DisconnectDevice_MustBeUnderLock()
+        {
+            try
+            {
+                if (!m_IsConnected) return ErrorServiceHandlerBase.ERR_OK;
+
+                if (null != m_TxNordicCharacteristic)
                 {
                     m_TxNordicCharacteristic = null;
                 }
@@ -144,29 +174,26 @@ namespace ElaBleCommunication
                 GC.SuppressFinalize(m_Gatt);
                 m_Gatt = null;
                 // disconnect device
-                try
+                if (null != m_ConnectedDevice)
                 {
-                    if (null != m_ConnectedDevice)
-                    {
-                        m_ConnectedDevice.Dispose(); // according to docs, this one line should be enough to disconnect
-                        GC.SuppressFinalize(m_ConnectedDevice);
-                        GC.Collect();
-                    }
+                    m_ConnectedDevice.Dispose(); // according to docs, this one line should be enough to disconnect
+                    GC.SuppressFinalize(m_ConnectedDevice);
+                    GC.Collect();
                 }
-                catch { }
                 //Following two lines are undocumented but necessary
                 m_ConnectedDevice = null;
                 GC.SuppressFinalize(this);
                 GC.Collect();
 
-                // default connect
                 m_IsConnected = false;
+                m_ConnectedDeviceMacAddress = null;
+
+                return ErrorServiceHandlerBase.ERR_OK;
             }
             catch (Exception ex)
             {
-                throw new ElaBleException("Exception while tryig to disconnect from device.", ex);
+                throw new ElaBleException("Exception while trying to disconnect from device.", ex);
             }
-            return ErrorServiceHandlerBase.ERR_OK;
         }
 
         /**
@@ -175,35 +202,32 @@ namespace ElaBleCommunication
          */
         public async Task<uint> SendCommandAsync(String command, String password = "", String arguments = "")
         {
-            uint uiErrorCode = ErrorServiceHandlerBase.ERR_OK;
+            await m_ConnectLock.WaitAsync();
             try
             {
-                if(true == m_IsConnected &&
-                    null != m_TxNordicCharacteristic &&
-                    null != m_RxNordicCharacteristic)
-                {
-                    String fullCommand = command;
-                    if(false == password.Equals(String.Empty)) fullCommand += $" {password}";
-                    if (false == arguments.Equals(String.Empty)) fullCommand += $" {arguments}";
-                    //
-                    DataWriter writer = new DataWriter();
-                    writer.WriteString(fullCommand);
-                    GattCommunicationStatus status = await m_TxNordicCharacteristic.WriteValueAsync(writer.DetachBuffer(), GattWriteOption.WriteWithoutResponse);
-                    if (status != GattCommunicationStatus.Success)
-                    {
-                        uiErrorCode = ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CANNOT_WRITE_ON_NORDIC_TX;
-                    }
-                }
-                else
-                {
-                    uiErrorCode = ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NORDIC_UART_UNITIALIZED;
-                }
+                if (!m_IsConnected) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NOT_CONNECTED;
+                if(m_TxNordicCharacteristic == null || m_RxNordicCharacteristic == null) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NORDIC_UART_UNITIALIZED;
+                
+                String fullCommand = command;
+                if(false == password.Equals(String.Empty)) fullCommand += $" {password}";
+                if (false == arguments.Equals(String.Empty)) fullCommand += $" {arguments}";
+                //
+                DataWriter writer = new DataWriter();
+                writer.WriteString(fullCommand);
+                GattCommunicationStatus status = await m_TxNordicCharacteristic.WriteValueAsync(writer.DetachBuffer(), GattWriteOption.WriteWithoutResponse);
+                
+                if (status != GattCommunicationStatus.Success) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CANNOT_WRITE_ON_NORDIC_TX;
+                return ErrorServiceHandlerBase.ERR_OK;
             }
             catch (Exception ex)
             {
                 throw new ElaBleException("An exception occurs while tryig to sending command from device.", ex);
             }
-            return uiErrorCode;
+                
+            finally
+            {
+                m_ConnectLock.Release();
+            }
         }
 
         /** associated event for a value changed*/

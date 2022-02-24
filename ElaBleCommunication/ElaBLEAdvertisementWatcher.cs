@@ -43,21 +43,19 @@ namespace ElaBleCommunication
         {
             try
             {
-                if(true == m_IsStarted)
-                {
-                    return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_SCANNER_ALREADY_STARTED;
-                }
-                //
+                if(m_IsStarted) return ErrorServiceHandlerBase.ERR_OK;
+
                 m_Watcher.Received += Watcher_Received;
                 m_Watcher.Start();
-                //
+                
                 m_IsStarted = true;
+
+                return ErrorServiceHandlerBase.ERR_OK;
             }
             catch (Exception e)
             {
                 throw new ElaBleException("An exception occurs while tryig to Start Bluetooth Scanner.", e);
             }
-            return ErrorServiceHandlerBase.ERR_OK;
         }
 
         /**
@@ -71,22 +69,19 @@ namespace ElaBleCommunication
         {
             try
             {
-                if (false == m_IsStarted)
-                {
-                    return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_SCANNER_ALREADY_STOPPED;
-                }
-                //
+                if (!m_IsStarted) return ErrorServiceHandlerBase.ERR_OK;
+
                 m_Watcher.Stop();
                 m_Watcher.Received -= Watcher_Received;
-                //
+                
                 m_IsStarted = false;
+
+                return ErrorServiceHandlerBase.ERR_OK;
             }
             catch (Exception e)
             {
                 throw new ElaBleException("Exception while trying to stop Bluetooth scanner.", e);
             }
-
-            return ErrorServiceHandlerBase.ERR_OK;
         }
 
         /**

@@ -46,7 +46,6 @@ namespace ElaBleCommunication.Tools
                 interoperableObject.id = interoperableObject.macaddress;
                 interoperableObject.timestamp = DateTime.Now.ToString(ElaBaseData.timestampformat, System.Globalization.CultureInfo.InvariantCulture);
                 if (interoperableObject.techno == ElaTagTechno.Unknown) interoperableObject.techno = ElaTagTechno.Bluetooth;
-                if (interoperableObject.localname.StartsWith("P T")) System.Diagnostics.Debug.WriteLine("coucou");
                 return interoperableObject;
 
 
