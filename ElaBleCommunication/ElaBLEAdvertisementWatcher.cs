@@ -41,21 +41,14 @@ namespace ElaBleCommunication
          */
         public uint StartBluetoothScanner()
         {
-            try
-            {
-                if(m_IsStarted) return ErrorServiceHandlerBase.ERR_OK;
-
-                m_Watcher.Received += Watcher_Received;
-                m_Watcher.Start();
+            if(m_IsStarted) return ErrorServiceHandlerBase.ERR_OK;
+            m_Watcher.ScanningMode = BluetoothLEScanningMode.Active;
+            m_Watcher.Received += Watcher_Received;
+            m_Watcher.Start();
                 
-                m_IsStarted = true;
+            m_IsStarted = true;
 
-                return ErrorServiceHandlerBase.ERR_OK;
-            }
-            catch (Exception e)
-            {
-                throw new ElaBleException("An exception occurs while tryig to Start Bluetooth Scanner.", e);
-            }
+            return ErrorServiceHandlerBase.ERR_OK;
         }
 
         /**
@@ -92,6 +85,7 @@ namespace ElaBleCommunication
          */
         private void Watcher_Received(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
         {
+            
             var device = BleDeviceTranslator.ToInteroperableObject(args);
             if (device != null) evAdvertisementReceived?.Invoke(device);
         }
