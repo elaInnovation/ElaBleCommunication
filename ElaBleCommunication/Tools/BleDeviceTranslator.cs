@@ -1,5 +1,6 @@
 ﻿using ElaTagClassLibrary.ElaTags;
 using ElaTagClassLibrary.ElaTags.Interoperability;
+using ElaTagClassLibrary.ElaTags.Interoperability.Model;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -40,11 +41,11 @@ namespace ElaBleCommunication.Tools
                 var payloadStr = ElaSoftwareCommon.Tools.ConversionTools.ByteArrayToString(payload.ToArray());
 
                 var interoperableObject = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payloadStr);
-                if (string.IsNullOrEmpty(interoperableObject.localname)) interoperableObject.localname = windowsObject.Advertisement.LocalName;
+                if (interoperableObject.identification == null) interoperableObject.identification = new ElaIdenficationObject();
+                if (string.IsNullOrEmpty(interoperableObject.identification?.localname)) interoperableObject.identification.localname = windowsObject.Advertisement.LocalName;
                 interoperableObject.rssi = windowsObject.RawSignalStrengthInDBm;
-                interoperableObject.macaddress = Regex.Replace(string.Format("{0:X}", windowsObject.BluetoothAddress), "([0-9A-F]{2})(?!$)", "$1:");
-                interoperableObject.id = interoperableObject.macaddress;
-                interoperableObject.timestamp = DateTime.Now.ToString(ElaBaseData.timestampformat, System.Globalization.CultureInfo.InvariantCulture);
+                interoperableObject.identification.macaddress = Regex.Replace(string.Format("{0:X}", windowsObject.BluetoothAddress), "([0-9A-F]{2})(?!$)", "$1:");
+                interoperableObject.id = interoperableObject.identification.macaddress;
                 if (interoperableObject.techno == ElaTagTechno.Unknown) interoperableObject.techno = ElaTagTechno.Bluetooth;
                 return interoperableObject;
 
