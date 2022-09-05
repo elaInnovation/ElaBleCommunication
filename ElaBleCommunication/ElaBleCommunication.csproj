@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ElaTagClassLibrary" Version="2.2.9" />
+    <PackageReference Include="ElaTagClassLibrary" Version="2.2.11" />
   </ItemGroup>
 
   <ItemGroup>

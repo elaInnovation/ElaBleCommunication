@@ -118,5 +118,10 @@
       <Name>ElaBleCommunication</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ElaSoftwareCommon">
+      <Version>1.3.21</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

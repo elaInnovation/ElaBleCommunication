@@ -62,8 +62,8 @@ namespace ElaBleCommunicationUI.Views
         private void Scanner_evAdvertisementReceived(ElaTagClassLibrary.ElaTags.Interoperability.ElaBaseData device)
         {
             var formattedData = $"{device.timestamp};" +
-                $"{device.macaddress};" +
-                $"{device.localname};" +
+                $"{device.identification?.macaddress};" +
+                $"{device.identification?.localname};" +
                 $"{device.rssi};";
 
             DispatcherOperation op = Dispatcher.BeginInvoke((Action)(() =>
