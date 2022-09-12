@@ -18,7 +18,7 @@ using System.Threading;
 namespace ElaBleCommunication
 {
     /** \brief notify that a new message has been received from tag */
-    public delegate void NotifyResponseReceived(String response);
+    public delegate void NotifyResponseReceived(byte[] response);
 
     /**
      * \class ElaBLEConnector
@@ -204,30 +204,52 @@ namespace ElaBleCommunication
         {
             await m_ConnectLock.WaitAsync();
             try
-            {
-                if (!m_IsConnected) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NOT_CONNECTED;
-                if(m_TxNordicCharacteristic == null || m_RxNordicCharacteristic == null) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NORDIC_UART_UNITIALIZED;
-                
-                String fullCommand = command;
-                if(false == password.Equals(String.Empty)) fullCommand += $" {password}";
-                if (false == arguments.Equals(String.Empty)) fullCommand += $" {arguments}";
+            {               
+                if (!string.IsNullOrEmpty(password)) command += $" {password}";
+                if (!string.IsNullOrEmpty(arguments)) command += $" {arguments}";
                 //
-                DataWriter writer = new DataWriter();
-                writer.WriteString(fullCommand);
-                GattCommunicationStatus status = await m_TxNordicCharacteristic.WriteValueAsync(writer.DetachBuffer(), GattWriteOption.WriteWithoutResponse);
-                
-                if (status != GattCommunicationStatus.Success) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CANNOT_WRITE_ON_NORDIC_TX;
-                return ErrorServiceHandlerBase.ERR_OK;
+                var commandBytes = Encoding.UTF8.GetBytes(command);
+                return await SendCommandAsync_MustBeUnderLock(commandBytes);
             }
             catch (Exception ex)
             {
                 throw new ElaBleException("An exception occurs while tryig to sending command from device.", ex);
             }
-                
             finally
             {
                 m_ConnectLock.Release();
             }
+        }
+
+        public async Task<uint> SendCommandAsync(byte[] command)
+        {
+            await m_ConnectLock.WaitAsync();
+            try
+            {
+                return await SendCommandAsync_MustBeUnderLock(command);
+            }
+            catch (Exception ex)
+            {
+                throw new ElaBleException("An exception occurs while tryig to sending command from device.", ex);
+            }
+            finally
+            {
+                m_ConnectLock.Release();
+            }
+        }
+
+        private async Task<uint> SendCommandAsync_MustBeUnderLock(byte[] command)
+        {
+            if (!m_IsConnected) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NOT_CONNECTED;
+            if (m_TxNordicCharacteristic == null || m_RxNordicCharacteristic == null) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NORDIC_UART_UNITIALIZED;
+
+            //
+            DataWriter writer = new DataWriter();
+            writer.WriteBytes(command);
+            GattCommunicationStatus status = await m_TxNordicCharacteristic.WriteValueAsync(writer.DetachBuffer(), GattWriteOption.WriteWithoutResponse);
+
+            if (status != GattCommunicationStatus.Success) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CANNOT_WRITE_ON_NORDIC_TX;
+            return ErrorServiceHandlerBase.ERR_OK;
         }
 
         /** associated event for a value changed*/
@@ -235,9 +257,7 @@ namespace ElaBleCommunication
         {
             byte[] data = new byte[args.CharacteristicValue.Length];
             DataReader.FromBuffer(args.CharacteristicValue).ReadBytes(data);
-
-            String value = Encoding.UTF8.GetString(data, 0, data.Length);
-            evResponseReceived?.Invoke(value);
+            evResponseReceived?.Invoke(data);
         }
     }
 }
