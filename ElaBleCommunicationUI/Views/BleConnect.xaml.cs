@@ -45,11 +45,11 @@ namespace ElaBleCommunicationUI.Views
          * \fn Bleconnection_evResponseReceived
          * \brief event when a new response has been received from the tag
          */
-        private void Bleconnection_evResponseReceived(string response)
+        private void Bleconnection_evResponseReceived(byte[] response)
         {
             DispatcherOperation op = Dispatcher.BeginInvoke((Action)(() =>
             {
-                writeConsole($"<<<Received from tag : {response}");
+                writeConsole($"<<<Received from tag : {Encoding.UTF8.GetString(response)}");
             }));
         }
 
