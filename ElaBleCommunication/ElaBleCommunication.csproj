@@ -4,9 +4,9 @@
     <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
 	<Platforms>AnyCPU;ARM32</Platforms>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<AssemblyVersion>1.1.4</AssemblyVersion>
-	<FileVersion>1.1.4</FileVersion>
-	<Version>1.1.4</Version>
+	<AssemblyVersion>1.1.5</AssemblyVersion>
+	<FileVersion>1.1.5</FileVersion>
+	<Version>1.1.5</Version>
   </PropertyGroup>
 
   <ItemGroup>
