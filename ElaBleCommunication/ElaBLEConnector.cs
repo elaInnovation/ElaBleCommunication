@@ -26,11 +26,6 @@ namespace ElaBleCommunication
      */
     public class ElaBLEConnector
     {
-        // nordic uart service
-        public const string NORDIC_UART_SERVICE = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
-        public const string NORDIC_UART_TX_CHAR = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
-        public const string NORDIC_UART_RX_CHAR = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
-
         /** \brief event for a new response received */
         public event NotifyResponseReceived evResponseReceived = null;
 
@@ -78,7 +73,7 @@ namespace ElaBleCommunication
                 
                 foreach (GattDeviceService service in m_Gatt.Services)
                 {
-                    if (service.Uuid.ToString() == NORDIC_UART_SERVICE)
+                    if (service.Uuid.ToString() == Gatt.NORDIC_UART_SERVICE)
                     {
                         bool bFoundRx = false;
                         bool bFoundTx = false;
@@ -88,12 +83,12 @@ namespace ElaBleCommunication
 
                         foreach (var charac in characteristics.Characteristics)
                         {
-                            if (charac.Uuid.ToString() == NORDIC_UART_TX_CHAR)
+                            if (charac.Uuid.ToString() == Gatt.NORDIC_UART_TX_CHAR)
                             {
                                 m_TxNordicCharacteristic = charac;
                                 bFoundTx = true;
                             }
-                            if (charac.Uuid.ToString() == NORDIC_UART_RX_CHAR)
+                            if (charac.Uuid.ToString() == Gatt.NORDIC_UART_RX_CHAR)
                             {
                                 m_RxNordicCharacteristic = charac;
                                 var result = await m_RxNordicCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
