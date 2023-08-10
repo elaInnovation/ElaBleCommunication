@@ -239,10 +239,9 @@ namespace ElaBleCommunication
             if (m_TxNordicCharacteristic == null || m_RxNordicCharacteristic == null) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NORDIC_UART_UNITIALIZED;
 
             //
-            DataWriter writer = new DataWriter();
+            using DataWriter writer = new DataWriter();
             writer.WriteBytes(command);
             GattCommunicationStatus status = await m_TxNordicCharacteristic.WriteValueAsync(writer.DetachBuffer(), GattWriteOption.WriteWithoutResponse);
-
             if (status != GattCommunicationStatus.Success) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CANNOT_WRITE_ON_NORDIC_TX;
             return ErrorServiceHandlerBase.ERR_OK;
         }
