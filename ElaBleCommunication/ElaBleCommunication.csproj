@@ -1,39 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+    <!--<TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>-->
+	  <TargetFramework>netstandard2.0</TargetFramework>
 	<Platforms>AnyCPU;ARM32</Platforms>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<AssemblyVersion>1.1.10</AssemblyVersion>
-	<FileVersion>1.1.10</FileVersion>
-	<Version>1.1.10</Version>
+	<AssemblyVersion>1.1.12</AssemblyVersion>
+	<FileVersion>1.1.12</FileVersion>
+	<Version>1.1.12</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Properties\**" />
-    <Compile Remove="Windows\**" />
-    <EmbeddedResource Remove="Properties\**" />
-    <EmbeddedResource Remove="Windows\**" />
-    <None Remove="Properties\**" />
-    <None Remove="Windows\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ElaBleCommunication.nuspec" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="ElaTagClassLibrary" Version="3.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Runtime.WindowsRuntime">
-      <HintPath>Windows\Foundation\System.Runtime.WindowsRuntime.dll</HintPath>
-    </Reference>
-    <Reference Include="Windows">
-      <HintPath>Windows\Foundation\Windows.winmd</HintPath>
-      <IsWinMDFile>true</IsWinMDFile>
-    </Reference>
+    <PackageReference Include="ElaTagClassLibrary" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.755" />
   </ItemGroup>
 
 </Project>
