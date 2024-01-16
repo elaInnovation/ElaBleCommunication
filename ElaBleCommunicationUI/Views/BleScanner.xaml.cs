@@ -1,4 +1,5 @@
-﻿using ElaBleCommunication;
+﻿using ElaBleCommunicationLegacy;
+using ElaBleCommunicationLegacy.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,5 +1,5 @@
-﻿using ElaBleCommunication;
-using ElaBleCommunication.Error;
+﻿using ElaBleCommunicationLegacy;
+using ElaBleCommunicationLegacy.Error;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using ElaSoftwareCommon.Error;
+using ElaBleCommunicationLegacy.Windows;
 
 namespace ElaBleCommunicationUI.Views
 {

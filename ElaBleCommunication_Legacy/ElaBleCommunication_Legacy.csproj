@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+	  <Platforms>AnyCPU;ARM32</Platforms>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <AssemblyVersion>1.0.1</AssemblyVersion>
+	  <FileVersion>1.0.1</FileVersion>
+	  <Version>1.0.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+  	<PackageReference Include="ElaTagClassLibrary" Version="3.1.5" />
+  	<PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.755" />
+  </ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
-﻿using ElaBleCommunication.Tools;
+﻿using ElaBleCommunicationLegacy.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using Windows.Storage.Streams;
  * \namespace ElaBluetoothCommunication.Model
  * \brief namespace associated to all the model used in library
  */
-namespace ElaBleCommunication.Model
+namespace ElaBleCommunicationLegacy.Model
 {
     /**
      * \class ElaBleDevice

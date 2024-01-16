@@ -113,15 +113,15 @@
     <Resource Include="Icon-Ela.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ElaBleCommunication\ElaBleCommunication.csproj">
-      <Project>{479556a3-d059-44d1-846d-428b960e5630}</Project>
-      <Name>ElaBleCommunication</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="ElaSoftwareCommon">
       <Version>1.3.27</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ElaBleCommunication_Legacy\ElaBleCommunication_Legacy.csproj">
+      <Project>{6a14f85f-9b70-44d3-9d93-dd0194e34b2b}</Project>
+      <Name>ElaBleCommunication_Legacy</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

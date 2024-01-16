@@ -12,11 +12,11 @@ using Windows.Devices.Bluetooth.Advertisement;
  * \namespace ElaBleCommunication
  * \brief namespace associated to the Bluetooth configuration
  */
-namespace ElaBleCommunication
+namespace ElaBleCommunication.Windows
 {
     /** \brief delegate associated to the Bluetooth device */
     public delegate void NewAdvertismentreceived(ElaBaseData device);
-    
+
     /**
      * \class ElaBLEAdvertisementWatcher
      * \brief use ElaBLEAdvertisementWatcher to scan and get data from Bluetooth Advertising
@@ -41,11 +41,11 @@ namespace ElaBleCommunication
          */
         public uint StartBluetoothScanner()
         {
-            if(m_IsStarted) return ErrorServiceHandlerBase.ERR_OK;
-            m_Watcher.ScanningMode = BluetoothLEScanningMode.Active;
+            if (m_IsStarted) return ErrorServiceHandlerBase.ERR_OK;
+            m_Watcher.ScanningMode = BluetoothLEScanningMode.Active; //Request scan response
             m_Watcher.Received += Watcher_Received;
             m_Watcher.Start();
-                
+
             m_IsStarted = true;
 
             return ErrorServiceHandlerBase.ERR_OK;
@@ -66,7 +66,7 @@ namespace ElaBleCommunication
 
                 m_Watcher.Stop();
                 m_Watcher.Received -= Watcher_Received;
-                
+
                 m_IsStarted = false;
 
                 return ErrorServiceHandlerBase.ERR_OK;
@@ -85,7 +85,7 @@ namespace ElaBleCommunication
          */
         private void Watcher_Received(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
         {
-            
+
             var device = BleDeviceTranslator.ToInteroperableObject(args);
             if (device != null) evAdvertisementReceived?.Invoke(device);
         }

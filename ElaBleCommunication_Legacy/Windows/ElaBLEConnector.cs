@@ -1,5 +1,5 @@
-﻿using ElaBleCommunication.Error;
-using ElaBleCommunication.Tools;
+﻿using ElaBleCommunicationLegacy.Error;
+using ElaBleCommunicationLegacy.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ using System.Threading;
  * \namespace ElaBluetoothCommunication
  * \brief namespace associated to the Bluetooth configuration
  */
-namespace ElaBleCommunication
+namespace ElaBleCommunicationLegacy.Windows
 {
     /** \brief notify that a new message has been received from tag */
     public delegate void NotifyResponseReceived(byte[] response);
@@ -37,12 +37,12 @@ namespace ElaBleCommunication
         private GattDeviceServicesResult m_Gatt = null;
 
         /** target characteristic */
-        private GattCharacteristic m_TxNordicCharacteristic= null;
+        private GattCharacteristic m_TxNordicCharacteristic = null;
         private GattCharacteristic m_RxNordicCharacteristic = null;
 
         /** \brief state connection */
         private bool m_IsConnected = false;
-        private readonly SemaphoreSlim m_ConnectLock = new SemaphoreSlim(1,1);
+        private readonly SemaphoreSlim m_ConnectLock = new SemaphoreSlim(1, 1);
 
         /** \brief constructor */
         public ElaBLEConnector() { }
@@ -50,7 +50,7 @@ namespace ElaBleCommunication
         /**
          * \fn connectDeviceAsync
          */
-        public async Task<uint> ConnectDeviceAsync(String macAddress)
+        public async Task<uint> ConnectDeviceAsync(string macAddress)
         {
             await m_ConnectLock.WaitAsync();
             try
@@ -63,17 +63,17 @@ namespace ElaBleCommunication
                         DisconnectDevice_MustBeUnderLock();
                 }
 
-                ulong ulMacAddress = MacAddress.macAdressHexaToLong(macAddress);
-                
+                ulong ulMacAddress = MacAddress.macAdressHexaToULong(macAddress);
+
                 m_ConnectedDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(ulMacAddress);
                 if (null == m_ConnectedDevice) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CONNECT_ERROR;
-                
+
                 m_Gatt = await m_ConnectedDevice.GetGattServicesAsync(BluetoothCacheMode.Cached);
                 if (null == m_Gatt) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CONNECT_ERROR;
-                
+
                 foreach (GattDeviceService service in m_Gatt.Services)
                 {
-                    if (service.Uuid.ToString() == Gatt.NORDIC_UART_SERVICE)
+                    if (service.Uuid.ToString() == ElaCharacteristics.NORDIC_UART_SERVICE)
                     {
                         bool bFoundRx = false;
                         bool bFoundTx = false;
@@ -83,12 +83,12 @@ namespace ElaBleCommunication
 
                         foreach (var charac in characteristics.Characteristics)
                         {
-                            if (charac.Uuid.ToString() == Gatt.NORDIC_UART_TX_CHAR)
+                            if (charac.Uuid.ToString() == ElaCharacteristics.NORDIC_UART_TX_CHAR)
                             {
                                 m_TxNordicCharacteristic = charac;
                                 bFoundTx = true;
                             }
-                            if (charac.Uuid.ToString() == Gatt.NORDIC_UART_RX_CHAR)
+                            if (charac.Uuid.ToString() == ElaCharacteristics.NORDIC_UART_RX_CHAR)
                             {
                                 m_RxNordicCharacteristic = charac;
                                 var result = await m_RxNordicCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
@@ -96,7 +96,7 @@ namespace ElaBleCommunication
                                 {
                                     m_RxNordicCharacteristic.ValueChanged += AssociatedCharacteristic_ValueChanged;
                                     bFoundRx = true;
-                                }                                
+                                }
                             }
                             //
                             if (true == bFoundRx && true == bFoundTx)
@@ -195,11 +195,11 @@ namespace ElaBleCommunication
          * \fn sendCommandAsync
          * \brief function to write through an uart nordic service if this one exist 
          */
-        public async Task<uint> SendCommandAsync(String command, String password = "", String arguments = "")
+        public async Task<uint> SendCommandAsync(string command, string password = "", string arguments = "")
         {
             await m_ConnectLock.WaitAsync();
             try
-            {               
+            {
                 if (!string.IsNullOrEmpty(password)) command += $" {password}";
                 if (!string.IsNullOrEmpty(arguments)) command += $" {arguments}";
                 //

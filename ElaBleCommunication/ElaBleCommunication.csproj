@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>-->
-	  <TargetFramework>netstandard2.0</TargetFramework>
+	<TargetFramework>netstandard2.0</TargetFramework>
 	<Platforms>AnyCPU;ARM32</Platforms>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<AssemblyVersion>1.1.12</AssemblyVersion>
@@ -11,12 +10,34 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Model\**" />
     <Compile Remove="Properties\**" />
+    <Compile Remove="Windows\**" />
+    <EmbeddedResource Remove="Model\**" />
+    <EmbeddedResource Remove="Windows\**" />
+    <None Remove="Model\**" />
+    <None Remove="Windows\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Tools\BleDeviceTranslator.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ElaTagClassLibrary" Version="3.1.5" />
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.755" />
+    <!--<PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.755" />-->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="wclBluetoothFramework">
+      <HintPath>Wcl\DemoLib netstandard2.0\wclBluetoothFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="wclCommon">
+      <HintPath>Wcl\DemoLib netstandard2.0\wclCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="wclCommunication">
+      <HintPath>Wcl\DemoLib netstandard2.0\wclCommunication.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
