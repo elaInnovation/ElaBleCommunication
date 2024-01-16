@@ -9,3 +9,5 @@ ElaBleCommunicationUI/bin/
 ElaBleCommunicationUI/obj/
 /obj/Debug/netcoreapp3.1
 /obj/Debug/netstandard2.0
+/ElaBleCommunication_Legacy/bin/Release
+/ElaBleCommunication_Legacy/obj
