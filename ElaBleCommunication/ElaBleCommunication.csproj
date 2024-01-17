@@ -4,9 +4,9 @@
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<Platforms>AnyCPU;ARM32</Platforms>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<AssemblyVersion>1.2.0</AssemblyVersion>
-	<FileVersion>1.2.0</FileVersion>
-	<Version>1.2.0</Version>
+	<AssemblyVersion>1.2.2</AssemblyVersion>
+	<FileVersion>1.2.2</FileVersion>
+	<Version>1.2.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,13 +31,31 @@
   <ItemGroup>
     <Reference Include="wclBluetoothFramework">
       <HintPath>Wcl\DemoLib netstandard2.0\wclBluetoothFramework.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="wclCommon">
       <HintPath>Wcl\DemoLib netstandard2.0\wclCommon.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="wclCommunication">
       <HintPath>Wcl\DemoLib netstandard2.0\wclCommunication.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Wcl\DemoLib netstandard2.0\wclBluetoothFramework.dll">
+			<Pack>true</Pack>
+			<PackagePath>lib\$(TargetFramework)</PackagePath>
+		</Content>
+		<Content Include="Wcl\DemoLib netstandard2.0\wclCommon.dll">
+			<Pack>true</Pack>
+			<PackagePath>lib\$(TargetFramework)</PackagePath>
+		</Content>
+		<Content Include="Wcl\DemoLib netstandard2.0\wclCommunication.dll">
+			<Pack>true</Pack>
+			<PackagePath>lib\$(TargetFramework)</PackagePath>
+		</Content>
+	</ItemGroup>
 
 </Project>
