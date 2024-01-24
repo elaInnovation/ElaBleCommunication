@@ -26,16 +26,17 @@ namespace ElaBleCommunication.Wcl
         private void Init(string radioName = null)
         {
             // absolutely necessary when this lib is not used in a UI framework
+            // Apc = Asynchronous Procedure Call
             wclMessageBroadcaster.SetSyncMethod(wclMessageSynchronizationKind.skApc);
-
+            
             var manager = new wclBluetoothManager();
             var result = manager.Open();
-            if (result != wclErrors.WCL_E_SUCCESS) throw new Exception("Error opening ble manager: 0x" + result.ToString("X8"));
+            if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Error opening ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
 
             if (string.IsNullOrEmpty(radioName))
             {
                 result = manager.GetLeRadio(out _radio);
-                if (result != wclErrors.WCL_E_SUCCESS) throw new Exception("Get working radio failed: 0x" + result.ToString("X8"));
+                if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Get working radio failed: 0x{result:X8} {ErrorMessages.Get(result)}");
             }
             else
             {

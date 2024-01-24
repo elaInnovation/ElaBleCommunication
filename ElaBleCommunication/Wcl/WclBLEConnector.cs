@@ -25,15 +25,9 @@ namespace ElaBleCommunication.Wcl
         public event NotifyResponseReceived evResponseReceived = null;
 
         private readonly wclBluetoothRadio _radio;
-
-        /** \brief current connected device*/
-        private string m_ConnectedDeviceMacAddress = null;
-        private WclGattConnection m_GattConnection = null;
-
-
-        /** \brief state connection */
-        private bool m_IsConnected = false;
-        private readonly SemaphoreSlim m_ConnectLock = new SemaphoreSlim(1, 1);
+        private WclGattConnection _gattConnection = null;
+        private bool _isConnected = false;
+        private readonly SemaphoreSlim _connectLock = new SemaphoreSlim(1, 1);
 
         /** \brief constructor */
         public WclBLEConnector(wclBluetoothRadio radio)
@@ -44,19 +38,19 @@ namespace ElaBleCommunication.Wcl
         /**
          * \fn connectDeviceAsync
          */
-        public async Task<uint> ConnectDeviceAsync(string macAddress)
+        public async Task<uint> ConnectDeviceAsync(string macAddress, bool debug = false)
         {
-            await m_ConnectLock.WaitAsync();
+            await _connectLock.WaitAsync();
             try
             {
                 long lMacAddress = MacAddress.macAdressHexaToLong(macAddress);
-                m_GattConnection = new WclGattConnection();
-                var connected = m_GattConnection.Connect(_radio, lMacAddress);
+                _gattConnection = new WclGattConnection(debug);
+                var connected = _gattConnection.Connect(_radio, lMacAddress);
 
                 if (connected)
                 {
-                    m_ConnectedDeviceMacAddress = macAddress;
-                    m_GattConnection.ResponseReceived += M_GattConnection_ResponseReceived;
+                    _isConnected = true;
+                    _gattConnection.ResponseReceived += M_GattConnection_ResponseReceived;
                     return ErrorServiceHandlerBase.ERR_OK;
                 }
 
@@ -68,7 +62,7 @@ namespace ElaBleCommunication.Wcl
             }
             finally
             {
-                m_ConnectLock.Release();
+                _connectLock.Release();
             }
         }
 
@@ -83,7 +77,7 @@ namespace ElaBleCommunication.Wcl
          */
         public uint DisconnectDevice()
         {
-            m_ConnectLock.Wait();
+            _connectLock.Wait();
             try
             {
                 return DisconnectDevice_MustBeUnderLock();
@@ -94,7 +88,7 @@ namespace ElaBleCommunication.Wcl
             }
             finally
             {
-                m_ConnectLock.Release();
+                _connectLock.Release();
             }
         }
 
@@ -102,13 +96,11 @@ namespace ElaBleCommunication.Wcl
         {
             try
             {
-                if (m_GattConnection == null) return ErrorServiceHandlerBase.ERR_OK;
+                if (_gattConnection == null) return ErrorServiceHandlerBase.ERR_OK;
 
-                m_GattConnection.Disconnect();
-                m_GattConnection = null;
-
-                m_IsConnected = false;
-                m_ConnectedDeviceMacAddress = null;
+                _gattConnection.Disconnect();
+                _gattConnection = null;
+                _isConnected = false;
 
                 return ErrorServiceHandlerBase.ERR_OK;
             }
@@ -124,7 +116,7 @@ namespace ElaBleCommunication.Wcl
          */
         public async Task<uint> SendCommandAsync(string command, string password = "", string arguments = "")
         {
-            await m_ConnectLock.WaitAsync();
+            await _connectLock.WaitAsync();
             try
             {
                 if (!string.IsNullOrEmpty(password)) command += $" {password}";
@@ -139,13 +131,13 @@ namespace ElaBleCommunication.Wcl
             }
             finally
             {
-                m_ConnectLock.Release();
+                _connectLock.Release();
             }
         }
 
         public async Task<uint> SendCommandAsync(byte[] command)
         {
-            await m_ConnectLock.WaitAsync();
+            await _connectLock.WaitAsync();
             try
             {
                 return await SendCommandAsync_MustBeUnderLock(command);
@@ -156,15 +148,15 @@ namespace ElaBleCommunication.Wcl
             }
             finally
             {
-                m_ConnectLock.Release();
+                _connectLock.Release();
             }
         }
 
         private Task<uint> SendCommandAsync_MustBeUnderLock(byte[] command)
         {
-            if (m_GattConnection == null) return Task.FromResult(ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NOT_CONNECTED);
+            if (_gattConnection == null) return Task.FromResult(ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NOT_CONNECTED);
 
-            m_GattConnection.SendCommand(command);
+            _gattConnection.SendCommand(command);
 
             return Task.FromResult(ErrorServiceHandlerBase.ERR_OK);
 

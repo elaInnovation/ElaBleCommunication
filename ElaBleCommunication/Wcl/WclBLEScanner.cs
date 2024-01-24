@@ -1,6 +1,4 @@
 ﻿using ElaBleCommunication.Error;
-//using ElaBleCommunication.Model;
-using ElaBleCommunication.Tools;
 using ElaSoftwareCommon.Error;
 using ElaTagClassLibrary.ElaTags;
 using ElaTagClassLibrary.ElaTags.Interoperability;
@@ -13,17 +11,9 @@ using System.Threading;
 using wclBluetooth;
 using wclCommon;
 
-/**
- * \namespace ElaBleCommunication
- * \brief namespace associated to the Bluetooth configuration
- */
+
 namespace ElaBleCommunication.Wcl
 {
-
-    /**
-     * \class WclBLEAdvertisementWatcher
-     * \brief use ElaBLEAdvertisementWatcher to scan and get data from Bluetooth Advertising
-     */
     public class WclBLEScanner
     {
         /** \brief event for new advertisement */
@@ -39,7 +29,7 @@ namespace ElaBleCommunication.Wcl
         private ushort _window = 29;
 
         private Thread _scanningThread;
-        private AutoResetEvent _initFlag;
+        private AutoResetEvent _initializedFlag;
         private AutoResetEvent _stopScanFlag;
 
         public WclBLEScanner(wclBluetoothRadio radio)
@@ -52,18 +42,30 @@ namespace ElaBleCommunication.Wcl
 
         public uint Start(bool withScanResponse = false, ushort interval = 189, ushort window = 29)
         {
+            if (_isStarted)
+            {
+                if (interval == _interval && window == _window && ((withScanResponse && _mode == wclBluetoothLeScanningMode.smActive) || (!withScanResponse && _mode == wclBluetoothLeScanningMode.smPassive)))
+                {
+                    return ErrorServiceHandlerBase.ERR_OK;
+                }
+                else
+                {
+                    Stop();
+                }
+            }
+
             _mode = withScanResponse ? wclBluetoothLeScanningMode.smActive : wclBluetoothLeScanningMode.smPassive;
             _interval = interval;
             _window = window;
 
             _isStarted = false;
             _stopScanFlag = new AutoResetEvent(false);
-            _initFlag = new AutoResetEvent(false);
+            _initializedFlag = new AutoResetEvent(false);
 
             _scanningThread = new Thread(ScanBle);
             _scanningThread.Start();
 
-            wclMessageBroadcaster.Wait(_initFlag);
+            wclMessageBroadcaster.Wait(_initializedFlag);
             if (_isStarted)
             {
                 return ErrorServiceHandlerBase.ERR_OK;
@@ -82,21 +84,14 @@ namespace ElaBleCommunication.Wcl
             if (result == wclErrors.WCL_E_SUCCESS)
             {
                 _isStarted = true;
-                _initFlag.Set();
+                _initializedFlag.Set();
                 wclMessageBroadcaster.Wait(_stopScanFlag);
                 _wclBluetoothLeBeaconWatcher.Stop();
             }
 
-            _initFlag.Set();
+            _initializedFlag.Set();
         }
 
-        /**
-         * \fn stopBluetoothScanner
-         * \brief stop the bluetooth scanner
-         * \return error code :
-         *      + ERR_SCANNER_ALREADY_STOPPED
-         *      + ERR_OK
-         */
         public uint Stop()
         {
             try
@@ -131,21 +126,28 @@ namespace ElaBleCommunication.Wcl
         private const string _regexReplaceMac = "$1:$2:$3:$4:$5:$6";
 
         private void ParseAdvertisement(long Address, sbyte Rssi, byte[] Data)
-        {         
-            string macAddress = Regex.Replace(string.Format("{0:X}", Address), _regexMac, _regexReplaceMac);
+        {
+            try
+            {
+                string macAddress = Regex.Replace(string.Format("{0:X}", Address), _regexMac, _regexReplaceMac);
 
-            string payload = "";
-            foreach (byte b in Data) payload += b.ToString("X2");
-            var data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload);
+                string payload = "";
+                foreach (byte b in Data) payload += b.ToString("X2");
+                var data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload);
 
-            data.id = macAddress;
-            data.rssi = Rssi;
-            if (data.identification is null) data.identification = new ElaIdenficationObject();
-            data.identification.macaddress = data.id;
-            data.version = ElaModelVersion.get();
-            data.payload = payload;
+                data.id = macAddress;
+                data.rssi = Rssi;
+                if (data.identification is null) data.identification = new ElaIdenficationObject();
+                data.identification.macaddress = data.id;
+                data.version = ElaModelVersion.get();
+                data.payload = payload;
 
-            evAdvertisementReceived?.Invoke(data);
+                evAdvertisementReceived?.Invoke(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[{nameof(WclBLEScanner)}][{nameof(ParseAdvertisement)}] Error while parsing received advertisement frame: {ex.Message}");
+            }
         }
     }
 }

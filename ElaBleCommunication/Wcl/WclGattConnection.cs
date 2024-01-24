@@ -5,316 +5,350 @@ using System.Threading;
 using ElaSoftwareCommon.Error;
 using wclBluetooth;
 using wclCommon;
-//using Windows.Devices.Bluetooth.GenericAttributeProfile;
+
 
 namespace ElaBleCommunication.Wcl
 {
     public class WclGattConnection
     {
-        private ManualResetEvent ConnectEvent;
-        private ManualResetEvent TerminateEvent;
-        private ManualResetEvent InitEvent;
-        private int InitResult;
-        private Thread GattThread;
-        private wclGattClient Client;
-        private wclBluetoothRadio BtRadio;
+        private ManualResetEvent _connectedEvent;
+        private ManualResetEvent _terminateEvent;
+        private ManualResetEvent _initializedEvent;
+        private int _initResult;
+        private Thread _gattConnectionThread;
+        private wclGattClient _client;
+        private wclBluetoothRadio _bluetoothRadio;
 
         public event NotifyResponseReceived ResponseReceived = null;
-        private wclGattCharacteristic? m_TxNordicCharacteristic = null;
-        private wclGattCharacteristic? m_RxNordicCharacteristic = null;
+        private wclGattCharacteristic? _txNordicCharacteristic = null;
+        private wclGattCharacteristic? _rxNordicCharacteristic = null;
 
-        public WclGattConnection()
+        private bool _debug = false;
+
+        private string MacAddress { get => _client == null ? "" : Tools.MacAddress.macAdressLongToHexa(_client.Address); }
+
+        public WclGattConnection(bool debug)
         {
-            ConnectEvent = null;
-            TerminateEvent = null;
-            InitEvent = null;
-            InitResult = wclErrors.WCL_E_SUCCESS;
-            GattThread = null;
-            Client = null;
-            BtRadio = null;
+            _connectedEvent = null;
+            _terminateEvent = null;
+            _initializedEvent = null;
+            _initResult = wclErrors.WCL_E_SUCCESS;
+            _gattConnectionThread = null;
+            _client = null;
+            _bluetoothRadio = null;
+            _debug = debug;
         }
 
-        public bool Connect(wclBluetoothRadio Radio, long Address)
+        public bool Connect(wclBluetoothRadio radio, long address)
         {
-            if (GattThread != null)
-                return false;
+            if (_gattConnectionThread != null) return false;
 
-            bool result = false;
+            bool hasInitializedCorrectly = false;
 
-            try { ConnectEvent = new ManualResetEvent(false); } catch { ConnectEvent = null; }
-            if (ConnectEvent == null)
-                Console.WriteLine("[" + Address.ToString("X12") + "]: Create connection event failed");
-            else
+            try
             {
-                try { TerminateEvent = new ManualResetEvent(false); } catch { TerminateEvent = null; }
-                if (TerminateEvent == null)
-                    Console.WriteLine("[" + Address.ToString("X12") + "]: Create termination event failed");
-                else
+                _connectedEvent = new ManualResetEvent(false);
+                _terminateEvent = new ManualResetEvent(false);
+                _initializedEvent = new ManualResetEvent(false);
+            }
+            catch (Exception ex)
+            {
+                PrintDebug($"Initialize {nameof(ManualResetEvent)}s failed: {ex.Message}");
+            }
+
+            try
+            {
+                _bluetoothRadio = radio;
+
+                _client = new wclGattClient();
+                _client.Address = address;
+                _client.OnConnect += Client_OnConnect;
+                _client.OnDisconnect += Client_OnDisconnect;
+                _client.OnCharacteristicChanged += Client_OnCharacteristicChanged;
+                _client.OnMaxPduSizeChanged += Client_OnMaxPduSizeChanged;
+                _client.OnConnectionParamsChanged += Client_OnConnectionParamsChanged;
+                _client.OnConnectionPhyChanged += Client_OnConnectionPhyChanged;
+
+                _gattConnectionThread = new Thread(ConnectionThread);
+                _gattConnectionThread.Start();
+
+                _initializedEvent.WaitOne();
+                hasInitializedCorrectly = _initResult == wclErrors.WCL_E_SUCCESS;
+
+                _initializedEvent.Close();
+                _initializedEvent = null;
+            }
+            catch (Exception ex)
+            {
+                PrintDebug(ex.Message);
+            }
+            finally
+            {
+                if (!hasInitializedCorrectly)
                 {
-                    try { InitEvent = new ManualResetEvent(false); } catch { InitEvent = null; }
-                    if (InitEvent == null)
-                        Console.WriteLine("[" + Address.ToString("X12") + "]: Create initialization event failed");
-                    else
-                    {
-                        try { GattThread = new Thread(ConnectionThread); } catch { GattThread = null; }
-                        if (GattThread == null)
-                            Console.WriteLine("[" + Address.ToString("X12") + "]: Create communication thread failed");
-                        else
-                        {
-                            BtRadio = Radio;
-
-                            Client = new wclGattClient();
-                            Client.Address = Address;
-                            Client.OnConnect += Client_OnConnect;
-                            Client.OnDisconnect += Client_OnDisconnect;
-                            Client.OnCharacteristicChanged += Client_OnCharacteristicChanged;
-                            Client.OnMaxPduSizeChanged += Client_OnMaxPduSizeChanged;
-                            Client.OnConnectionParamsChanged += Client_OnConnectionParamsChanged;
-                            Client.OnConnectionPhyChanged += Client_OnConnectionPhyChanged;
-
-                            InitResult = wclErrors.WCL_E_SUCCESS;
-                            GattThread.Start();
-
-                            InitEvent.WaitOne();
-                            result = InitResult == wclErrors.WCL_E_SUCCESS;
-                            //if (!Result)
-                            //{
-                            //    GattThread.Join();
-                            //    GattThread = null;
-                            //    Client = null;
-                            //    BtRadio = null;
-                            //}
-                        }
-
-                        InitEvent.Close();
-                        InitEvent = null;
-                    }
-
-                    //if (!Result)
-                    //{
-                    //    TerminateEvent.Close();
-                    //    TerminateEvent = null;
-                    //}
-                }
-
-                if (!result)
-                {
-                    ConnectEvent.Close();
-                    ConnectEvent = null;
+                    _connectedEvent.Close();
+                    _connectedEvent = null;
                 }
             }
 
-            return result;
+            return hasInitializedCorrectly;
         }
 
         public void Disconnect()
         {
-            if (GattThread != null)
-            {
-                TerminateEvent.Set();
-                GattThread.Join();
+            if (_gattConnectionThread == null) return;
+            
+            _terminateEvent.Set();
+            _gattConnectionThread.Join();
 
-                ConnectEvent.Close();
-                ConnectEvent = null;
+            _connectedEvent.Close();
+            _connectedEvent = null;
 
-                TerminateEvent.Close();
-                TerminateEvent = null;
+            _terminateEvent.Close();
+            _terminateEvent = null;
 
-                InitResult = wclErrors.WCL_E_SUCCESS;
-                GattThread = null;
-                Client = null;
-                BtRadio = null;
-            }
+            _initResult = wclErrors.WCL_E_SUCCESS;
+            _gattConnectionThread = null;
+            _client = null;
+            _bluetoothRadio = null;
         }
 
         private void ConnectionThread()
         {
-            InitResult = Client.Connect(BtRadio);
-            if (InitResult == wclErrors.WCL_E_SUCCESS)
-                wclMessageBroadcaster.Wait(ConnectEvent);
+            _initResult = _client.Connect(_bluetoothRadio);
 
-            if (InitResult == wclErrors.WCL_E_SUCCESS)
+            if (_initResult == wclErrors.WCL_E_SUCCESS)
+            {
+                wclMessageBroadcaster.Wait(_connectedEvent);
                 ReadServices();
-
-            InitEvent.Set();
-
-            if (InitResult == wclErrors.WCL_E_SUCCESS)
-            {
-                wclMessageBroadcaster.Wait(TerminateEvent);
-                Client.Disconnect();
             }
-        }
 
-        private void ReadCharacteristics(wclGattService Service)
-        {
-            wclGattCharacteristic? writeChar = null;
-
-            wclGattCharacteristic[] Characteristics;
-            int Res = Client.ReadCharacteristics(Service, wclGattOperationFlag.goNone, out Characteristics);
-            if (Res != wclErrors.WCL_E_SUCCESS)
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: read characteristics error: 0x" + Res.ToString("X8"));
-            else
+            if (_txNordicCharacteristic == null)
             {
-                if (Characteristics == null || Characteristics.Length == 0)
-                    Console.WriteLine("[" + Client.Address.ToString("X12") + "]: no characteristics found");
-                else
-                {
-                    foreach (wclGattCharacteristic Characteristic in Characteristics)
-                    {
-                        Console.WriteLine("[" + Client.Address.ToString("X12") + "]: characteristic: " + UuidToString(Characteristic.Uuid));
-                        if (Characteristic.IsReadable)
-                        {
-                            Console.WriteLine("[" + Client.Address.ToString("X12") + "]: readable");
-                            byte[] Value;
-                            Res = Client.ReadCharacteristicValue(Characteristic, wclGattOperationFlag.goNone, out Value);
-                            if (Value == null || Value.Length == 0)
-                                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: value is empty");
-                            else
-                                DumpValue(Value);
-                        }
+                PrintDebug($"Unable to find NORDIC Tx characteristic");
+                _initResult = wclErrors.WCL_E_BASE; // better error code?
+            }
+            if (_rxNordicCharacteristic == null)
+            {
+                PrintDebug($"Unable to find NORDIC Rx characteristic");
+                _initResult = wclErrors.WCL_E_BASE; // better error code?
+            }
 
-                        if (UuidToString(Characteristic.Uuid) == ElaCharacteristics.NORDIC_UART_RX_CHAR)
-                        {
-                            if (Characteristic.IsIndicatable || Characteristic.IsNotifiable)
-                            {
-                                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: notifiable (or indicatable)");
-                            }
+            _initializedEvent.Set();
 
-                            Res = Client.Subscribe(Characteristic);
-                            if (Res != wclErrors.WCL_E_SUCCESS)
-                                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: subscribe error: 0x" + Res.ToString("X8"));
-                            else
-                            {
-                                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: subscribed");
-                                Res = Client.WriteClientConfiguration(Characteristic, true, wclGattOperationFlag.goNone);
-                                if (Res != wclErrors.WCL_E_SUCCESS)
-                                {
-                                    Console.WriteLine("[" + Client.Address.ToString("X12") + "]: write configuration error: 0x" + Res.ToString("X8"));
-                                    m_RxNordicCharacteristic = Characteristic;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("[" + Client.Address.ToString("X12") + "]: write configuration completed");
-                                }
-                            }
-                        }
-
-                        if (Characteristic.IsWritableWithoutResponse)
-                        {
-                            Console.WriteLine($"Found writable char {UuidToString(Characteristic.Uuid)}");
-                        }
-
-                        if (UuidToString(Characteristic.Uuid) == ElaCharacteristics.NORDIC_UART_TX_CHAR) m_TxNordicCharacteristic = Characteristic;
-                    }
-                }
+            if (_initResult == wclErrors.WCL_E_SUCCESS)
+            {
+                wclMessageBroadcaster.Wait(_terminateEvent);
+                _client.Disconnect();
             }
         }
 
         private void ReadServices()
         {
             wclGattService[] Services;
-            int Res = Client.ReadServices(wclGattOperationFlag.goNone, out Services);
-            if (Res != wclErrors.WCL_E_SUCCESS)
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: read services error: 0x" + Res.ToString("X8"));
-            else
+            int res = _client.ReadServices(wclGattOperationFlag.goNone, out Services);
+
+            if (res != wclErrors.WCL_E_SUCCESS)
             {
-                if (Services == null || Services.Length == 0)
-                    Console.WriteLine("[" + Client.Address.ToString("X12") + "]: no services found");
-                else
-                {
-                    Console.WriteLine("[" + Client.Address.ToString("X12") + "]: found " + Services.Length + " services");
-                    foreach (wclGattService Service in Services)
-                    {
-                        Console.WriteLine("[" + Client.Address.ToString("X12") + "]: service: " + UuidToString(Service.Uuid));
-                        ReadCharacteristics(Service);
-                    }
-                }
+                PrintDebug($"read services error: 0x{res:X8}", res);
+                return;
+            }
+
+            if (Services == null || Services.Length == 0)
+            {
+                PrintDebug($"no services found");
+                return;
+            }
+
+            PrintDebug($"found {Services.Length} services");
+
+            foreach (wclGattService Service in Services)
+            {
+                PrintDebug($"\tservice: {UuidToString(Service.Uuid)}");
+                ReadCharacteristics(Service);
             }
         }
 
+        private void ReadCharacteristics(wclGattService service)
+        {
+            wclGattCharacteristic[] characteristics;
+            int res = _client.ReadCharacteristics(service, wclGattOperationFlag.goNone, out characteristics);
+            
+            if (res != wclErrors.WCL_E_SUCCESS)
+            {
+                PrintDebug($"\t\tread characteristics error: 0x{res:X8}", res);
+                return;
+            }
+                
+            if (characteristics == null || characteristics.Length == 0)
+            {
+                PrintDebug($"\t\tno characteristics found");
+                return;
+            }
+                    
+            foreach (wclGattCharacteristic characteristic in characteristics)
+            {
+                PrintDebug($"\t\tcharacteristic: {UuidToString(characteristic.Uuid)}");
+
+                if (_debug)
+                {
+                    if (characteristic.IsReadable)
+                    {
+                        PrintDebug("\t\t\treadable");
+                        byte[] value;
+                        res = _client.ReadCharacteristicValue(characteristic, wclGattOperationFlag.goNone, out value);
+                        if (value == null || value.Length == 0)
+                            PrintDebug("\t\t\tvalue is empty");
+                        else
+                            DumpValue(value);
+                    }
+                }
+
+                if (UuidToString(characteristic.Uuid) == ElaCharacteristics.NORDIC_UART_RX_CHAR)
+                {
+                    PrintDebug("\t\t\tfound NORDIC Rx characteristic");
+
+                    res = _client.Subscribe(characteristic);
+                    if (res != wclErrors.WCL_E_SUCCESS)
+                    {
+                        PrintDebug($"\t\t\tsubscribe error: 0x{res:X8}", res);
+                    }
+                    else
+                    {
+                        PrintDebug("\t\t\tsubscribed");
+                        res = _client.WriteClientConfiguration(characteristic, Subscribe: true, wclGattOperationFlag.goNone);
+                        if (res != wclErrors.WCL_E_SUCCESS)
+                        {
+                            PrintDebug($"\t\t\twrite configuration error: 0x{res:X8}", res);
+                        }
+                        else
+                        {
+                            PrintDebug("\t\t\twrite configuration completed");
+                            _rxNordicCharacteristic = characteristic;
+                        }
+                    }
+                }
+
+                if (UuidToString(characteristic.Uuid) == ElaCharacteristics.NORDIC_UART_TX_CHAR)
+                {
+                    PrintDebug("\t\t\tfound NORDIC Tx characteristic");
+                    _txNordicCharacteristic = characteristic;
+                }
+            }
+        }
+        
+
         public uint SendCommand(byte[] command)
         {
-            if (Client == null) return ErrorServiceHandlerBase.ERR_BLUETOOTH_SEND_COMMAND_ERROR;
-            if (m_TxNordicCharacteristic == null) return ErrorServiceHandlerBase.ERR_BLUETOOTH_NO_NORDIC_TX_CHAR;
+            if (_client == null) return ErrorServiceHandlerBase.ERR_BLUETOOTH_SEND_COMMAND_ERROR;
+            if (!_txNordicCharacteristic.HasValue) return ErrorServiceHandlerBase.ERR_BLUETOOTH_NO_NORDIC_TX_CHAR;
 
-            var res = Client.WriteCharacteristicValue(m_TxNordicCharacteristic.Value, command);
+            var res = _client.WriteCharacteristicValue(_txNordicCharacteristic.Value, command);
 
             return res == wclErrors.WCL_E_SUCCESS ? ErrorServiceHandlerBase.ERR_OK : ErrorServiceHandlerBase.ERR_BLUETOOTH_SEND_COMMAND_ERROR;
         }
 
-        private void GetMaxPduSize()
+        private void Client_OnCharacteristicChanged(object sender, ushort handle, byte[] value)
         {
-            ushort Size;
-            int Res = Client.GetMaxPduSize(out Size);
-            if (Res != wclErrors.WCL_E_SUCCESS)
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: Get max PDU size error: 0x" + Res.ToString("X8"));
-            else
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: Max PDU size: " + Size.ToString());
+            string valueHexa = "";
+            foreach (byte b in value) valueHexa += b.ToString("X2");
+
+            PrintDebug($"value {handle:X4} changed: (ASCII){Encoding.ASCII.GetString(value)} (Hexa){valueHexa}");
+
+            ResponseReceived?.Invoke(value);
         }
 
-        private void GetConnectionParams()
+        private void Client_OnDisconnect(object Sender, int reason)
         {
-            wclBluetoothLeConnectionParameters Params;
-            int Res = Client.GetConnectionParams(out Params);
-            if (Res != wclErrors.WCL_E_SUCCESS)
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: Get connection params error: 0x" + Res.ToString("X8"));
-            else
+            PrintDebug($"disconnected with reason: 0x{reason:X8}", reason);
+        }
+
+        private void Client_OnConnect(object Sender, int error)
+        {
+            _initResult = error;
+            if (error == wclErrors.WCL_E_SUCCESS)
             {
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: connection params");
-                Console.WriteLine("  Interval     : " + Params.Interval.ToString());
-                Console.WriteLine("  Latency      : " + Params.Latency.ToString());
-                Console.WriteLine("  Link timeout : " + Params.LinkTimeout.ToString());
-            }
-        }
-
-        private void GetConnectionPhy()
-        {
-            wclBluetoothLeConnectionPhy Phy;
-            int Res = Client.GetConnectionPhyInfo(out Phy);
-            if (Res != wclErrors.WCL_E_SUCCESS)
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: Get connection PHY error: 0x" + Res.ToString("X8"));
-            else
-            {
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: connection PHY");
-                Console.WriteLine("  Receive");
-                Console.WriteLine("    IsCoded        : " + Phy.Receive.IsCoded.ToString());
-                Console.WriteLine("    IsUncoded1MPhy : " + Phy.Receive.IsUncoded1MPhy.ToString());
-                Console.WriteLine("    IsUncoded2MPhy : " + Phy.Receive.IsUncoded2MPhy.ToString());
-                Console.WriteLine("  Transmit");
-                Console.WriteLine("    IsCoded        : " + Phy.Transmit.IsCoded.ToString());
-                Console.WriteLine("    IsUncoded1MPhy : " + Phy.Transmit.IsUncoded1MPhy.ToString());
-                Console.WriteLine("    IsUncoded2MPhy : " + Phy.Transmit.IsUncoded2MPhy.ToString());
-            }
-        }
-
-        private void Client_OnCharacteristicChanged(object Sender, ushort Handle, byte[] Value)
-        {
-            string value = "";
-            foreach (byte b in Value) value += b.ToString("X2");
-            value = Encoding.ASCII.GetString(Value);
-            Console.WriteLine("[" + Client.Address.ToString("X12") + "]: value " + Handle.ToString("X4") + " changed. Value: " + value);
-            ResponseReceived?.Invoke(Value);
-        }
-
-        private void Client_OnDisconnect(object Sender, int Reason)
-        {
-            Console.WriteLine("[" + Client.Address.ToString("X12") + "]: disconnected with reason: 0x" + Reason.ToString("X8"));
-        }
-
-        private void Client_OnConnect(object Sender, int Error)
-        {
-            InitResult = Error;
-            if (Error == wclErrors.WCL_E_SUCCESS)
-            {
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: connected");
+                PrintDebug("connected");
                 GetMaxPduSize();
                 GetConnectionParams();
                 GetConnectionPhy();
             }
             else
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: connect error: 0x" + Error.ToString("X8"));
+            {
+                PrintDebug($"connect error: 0x{error:X8}", error);
+            }
 
-            ConnectEvent.Set();
+            _connectedEvent.Set();
+        }
+
+        #region Debug functions
+
+        private void PrintDebug(string message, int errorCode = wclErrors.WCL_E_SUCCESS)
+        {
+            if (_debug)
+            {
+                var macAddress = _client == null ? "" : Tools.MacAddress.macAdressLongToHexa(_client.Address);
+                var errorMessage = errorCode == wclErrors.WCL_E_SUCCESS ? string.Empty : ErrorMessages.Get(errorCode);
+                Console.WriteLine($"[{nameof(WclGattConnection)}][{macAddress}]: {message}. {errorMessage}");
+            }
+        }
+
+        private void GetMaxPduSize()
+        {
+            if (_debug)
+            {
+                int res = _client.GetMaxPduSize(out ushort size);
+
+                if (res != wclErrors.WCL_E_SUCCESS)
+                    PrintDebug($"get max PDU size error: 0x{res:X8}", res);
+                else
+                    PrintDebug($"max PDU size: {size}");
+            }
+        }
+
+        private void GetConnectionParams()
+        {
+#if DEBUG
+            if (_debug)
+            {
+                wclBluetoothLeConnectionParameters Params;
+                int Res = _client.GetConnectionParams(out Params);
+                if (Res != wclErrors.WCL_E_SUCCESS)
+                    PrintDebug($"get connection params error: 0x{Res:X8}", Res);
+                else
+                {
+                    PrintDebug("connection params");
+                    Console.WriteLine($"\tInterval\t: {Params.Interval}");
+                    Console.WriteLine($"\tLatency\t: {Params.Latency}");
+                    Console.WriteLine($"\tLink timeout\t: {Params.LinkTimeout}");
+                }
+            }
+#endif
+        }
+
+        private void GetConnectionPhy()
+        {
+#if DEBUG
+            if (_debug)
+            {
+                wclBluetoothLeConnectionPhy Phy;
+                int Res = _client.GetConnectionPhyInfo(out Phy);
+                if (Res != wclErrors.WCL_E_SUCCESS)
+                    PrintDebug($"get connection PHY error: 0x{Res:X8}", Res);
+                else
+                {
+                    PrintDebug("connection PHY");
+                    Console.WriteLine("\tReceive");
+                    Console.WriteLine("\t\tIsCoded\t: " + Phy.Receive.IsCoded.ToString());
+                    Console.WriteLine("\t\tIsUncoded1MPhy\t: " + Phy.Receive.IsUncoded1MPhy.ToString());
+                    Console.WriteLine("\t\tIsUncoded2MPhy\t: " + Phy.Receive.IsUncoded2MPhy.ToString());
+                    Console.WriteLine("\tTransmit");
+                    Console.WriteLine("\t\tIsCoded\t: " + Phy.Transmit.IsCoded.ToString());
+                    Console.WriteLine("\t\tIsUncoded1MPhy\t: " + Phy.Transmit.IsUncoded1MPhy.ToString());
+                    Console.WriteLine("\t\tIsUncoded2MPhy\t: " + Phy.Transmit.IsUncoded2MPhy.ToString());
+                }
+            }
+#endif
         }
 
         private void Client_OnMaxPduSizeChanged(object sender, EventArgs e)
@@ -331,6 +365,9 @@ namespace ElaBleCommunication.Wcl
         {
             GetConnectionPhy();
         }
+        #endregion
+
+        #region Utils
 
         private string UuidToString(wclGattUuid Uuid)
         {
@@ -346,8 +383,10 @@ namespace ElaBleCommunication.Wcl
                 string s = "";
                 foreach (byte b in Value)
                     s = s + b.ToString("X1");
-                Console.WriteLine("[" + Client.Address.ToString("X12") + "]: value: " + s);
+                PrintDebug("\t\t\tvalue: " + s);
             }
         }
+
+        #endregion
     }
 }
