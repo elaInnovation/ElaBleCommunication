@@ -51,6 +51,18 @@ namespace ElaBleCommunication.Tools
                         "$1:");
         }
 
+        /** getter on the hexa bluetooth adress 
+         * @param [in] adress : associated mac adress
+         * @return hexa string associated to mac adress
+         */
+        public static String macAdressLongToHexa(long adress)
+        {
+            return Regex.Replace(
+                        String.Format("{0:X}", adress),
+                        "([0-9A-F]{2})(?!$)",
+                        "$1:");
+        }
+
         /** getter on the mac address type, according to the input string 
          * @param [in] macAddress : input mac address
          * @return MacAddressType target type
