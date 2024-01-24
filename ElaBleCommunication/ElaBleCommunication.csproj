@@ -4,9 +4,9 @@
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<Platforms>AnyCPU;ARM32</Platforms>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<AssemblyVersion>1.2.2</AssemblyVersion>
-	<FileVersion>1.2.2</FileVersion>
-	<Version>1.2.2</Version>
+	<AssemblyVersion>1.2.3</AssemblyVersion>
+	<FileVersion>1.2.3</FileVersion>
+	<Version>1.2.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="ElaTagClassLibrary" Version="3.1.5" />
+	<PackageReference Include="System.IO.Ports" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
