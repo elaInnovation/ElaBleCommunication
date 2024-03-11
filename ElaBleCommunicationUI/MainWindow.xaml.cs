@@ -1,4 +1,5 @@
-﻿using ElaBleCommunicationUI.Views;
+﻿using ElaBleCommunication.Wcl;
+using ElaBleCommunicationUI.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,10 @@ namespace ElaBleCommunicationUI
     /// </summary>
     public partial class MainWindow : Window
     {
+#if WCL
+        public static WclBleController BleController { get; } = new WclBleController();
+#endif
+
         /** \brief constructor */
         public MainWindow()
         {

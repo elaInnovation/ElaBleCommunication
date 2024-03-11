@@ -1,22 +1,12 @@
-﻿using ElaBleCommunicationLegacy;
-using ElaBleCommunicationLegacy.Error;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using ElaSoftwareCommon.Error;
-using ElaBleCommunicationLegacy.Windows;
+using ElaBleCommunication.Wcl;
+using ElaBleCommunication.Legacy.Windows;
+
 
 namespace ElaBleCommunicationUI.Views
 {
@@ -32,14 +22,20 @@ namespace ElaBleCommunicationUI.Views
         public const string nordicUartRxCharacteristic = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
         /** \brief bluetooth connector */
+#if WCL
+        private WclBLEConnector bleconnection = MainWindow.BleController.Connector;
+#else
         private ElaBLEConnector bleconnection = new ElaBLEConnector();
+#endif
+
+
 
         /** \brief constructor */
         public BleConnect()
         {
             InitializeComponent();
             //
-            this.bleconnection.evResponseReceived += Bleconnection_evResponseReceived;
+            bleconnection.evResponseReceived += Bleconnection_evResponseReceived;
         }
 
         /**
@@ -92,7 +88,8 @@ namespace ElaBleCommunicationUI.Views
             try
             {
                 uint errorConnect = await bleconnection.ConnectDeviceAsync(this.tbMacAddressValue.Text);
-                if(errorConnect != ErrorServiceHandlerBase.ERR_OK)
+
+                if (errorConnect != ErrorServiceHandlerBase.ERR_OK)
                 {
                     writeConsole($"Connect function return error code : {errorConnect} ({ErrorServiceHandlerBase.getErrorMessage(errorConnect)})");
                 }
@@ -126,6 +123,6 @@ namespace ElaBleCommunicationUI.Views
                 writeConsole($"An exception occurs in disconnection : {ex.Message}");
             }
         }
-        #endregion
+#endregion
     }
 }

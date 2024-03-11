@@ -16,16 +16,6 @@
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
@@ -34,6 +24,26 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug WCL|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug WCL\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WCL</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -116,11 +126,22 @@
     <PackageReference Include="ElaSoftwareCommon">
       <Version>1.3.27</Version>
     </PackageReference>
+    <PackageReference Include="ElaTagClassLibrary">
+      <Version>3.1.5</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ElaBleCommunication_Legacy\ElaBleCommunication_Legacy.csproj">
-      <Project>{6a14f85f-9b70-44d3-9d93-dd0194e34b2b}</Project>
-      <Name>ElaBleCommunication_Legacy</Name>
+    <ProjectReference Include="..\ElaBleCommunication.Common\ElaBleCommunication.Common.csproj">
+      <Project>{5aa84181-756f-42bc-948d-baa960a12073}</Project>
+      <Name>ElaBleCommunication.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ElaBleCommunication.Legacy\ElaBleCommunication.Legacy.csproj">
+      <Project>{f6579781-d44a-46af-adec-f3469e3cdecc}</Project>
+      <Name>ElaBleCommunication.Legacy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ElaBleCommunication\ElaBleCommunication.csproj">
+      <Project>{479556a3-d059-44d1-846d-428b960e5630}</Project>
+      <Name>ElaBleCommunication</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
