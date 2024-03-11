@@ -28,7 +28,7 @@ namespace ElaBleCommunication.Wcl
             // absolutely necessary when this lib is not used in a UI framework
             // Apc = Asynchronous Procedure Call
             wclMessageBroadcaster.SetSyncMethod(wclMessageSynchronizationKind.skApc);
-            
+
             var manager = new wclBluetoothManager();
             var result = manager.Open();
             if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Error opening ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");

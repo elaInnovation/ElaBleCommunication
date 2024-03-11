@@ -4,58 +4,15 @@
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<Platforms>AnyCPU;ARM32</Platforms>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<AssemblyVersion>1.2.3</AssemblyVersion>
-	<FileVersion>1.2.3</FileVersion>
-	<Version>1.2.3</Version>
+	<AssemblyVersion>1.2.7</AssemblyVersion>
+	<FileVersion>1.2.7</FileVersion>
+	<Version>1.2.7</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Model\**" />
-    <Compile Remove="Properties\**" />
-    <Compile Remove="Windows\**" />
-    <EmbeddedResource Remove="Model\**" />
-    <EmbeddedResource Remove="Windows\**" />
-    <None Remove="Model\**" />
-    <None Remove="Windows\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Tools\BleDeviceTranslator.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="ElaTagClassLibrary" Version="3.1.5" />
+	<PackageReference Include="ElaBleCommunication.Common" Version="1.0.0" />
 	<PackageReference Include="System.IO.Ports" Version="4.7.0" />
+	<PackageReference Include="wclBluetoothFramework" Version="7.17.9" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="wclBluetoothFramework">
-      <HintPath>Wcl\DemoLib netstandard2.0\wclBluetoothFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="wclCommon">
-      <HintPath>Wcl\DemoLib netstandard2.0\wclCommon.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="wclCommunication">
-      <HintPath>Wcl\DemoLib netstandard2.0\wclCommunication.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-
-	<ItemGroup>
-		<Content Include="Wcl\DemoLib netstandard2.0\wclBluetoothFramework.dll">
-			<Pack>true</Pack>
-			<PackagePath>lib\$(TargetFramework)</PackagePath>
-		</Content>
-		<Content Include="Wcl\DemoLib netstandard2.0\wclCommon.dll">
-			<Pack>true</Pack>
-			<PackagePath>lib\$(TargetFramework)</PackagePath>
-		</Content>
-		<Content Include="Wcl\DemoLib netstandard2.0\wclCommunication.dll">
-			<Pack>true</Pack>
-			<PackagePath>lib\$(TargetFramework)</PackagePath>
-		</Content>
-	</ItemGroup>
 
 </Project>

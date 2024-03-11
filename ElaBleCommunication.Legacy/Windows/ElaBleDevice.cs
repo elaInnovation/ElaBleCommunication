@@ -1,4 +1,4 @@
-﻿using ElaBleCommunication.Tools;
+﻿using ElaBleCommunication.Common.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using Windows.Storage.Streams;
  * \namespace ElaBluetoothCommunication.Model
  * \brief namespace associated to all the model used in library
  */
-namespace ElaBleCommunication.Model
+namespace ElaBleCommunication.Legacy.Windows
 {
     /**
      * \class ElaBleDevice
@@ -18,7 +18,7 @@ namespace ElaBleCommunication.Model
     public class ElaBleDevice
     {
         /** \brief Apple company id to detect iBeacon */
-        private const UInt16 AppleCompanyId = 0x004c;
+        private const ushort AppleCompanyId = 0x004c;
 
         /** \brief Eddystone frame identification */
         private const string EddystoneFrameCheck = "AA-FE";
@@ -33,18 +33,18 @@ namespace ElaBleCommunication.Model
         /** \brief iBeacon : UUID value */
         public Guid Uuid { get; set; }
         /** \brief iBeacon : Minor value */
-        public UInt32 Minor { get; set; }
+        public uint Minor { get; set; }
         /** \brief iBeacon : Major value */
-        public UInt32 Major { get; set; }
-        public UInt64 LNid { get; set; }
-        public UInt64 MNid { get; set; }
-        public UInt64 Bid { get; set; }
+        public uint Major { get; set; }
+        public ulong LNid { get; set; }
+        public ulong MNid { get; set; }
+        public ulong Bid { get; set; }
         public DateTimeOffset Timestamp { get; set; }
         public string AdvertisementType { get; set; }
         public string Advertisement_flags { get; set; }
         public List<string> LServiceUuids { get; set; }
-        public List<String> LManufacturerData { get; set; }
-        public List<String> LDataSection { get; set; }
+        public List<string> LManufacturerData { get; set; }
+        public List<string> LDataSection { get; set; }
         #endregion
 
         /**
@@ -83,9 +83,9 @@ namespace ElaBleCommunication.Model
          * \param [in] ui : associated uint
          * \return hexa string
          */
-        private String GetFormatedNid(UInt64 lui, UInt64 mui)
+        private string GetFormatedNid(ulong lui, ulong mui)
         {
-            if (0 == lui && 0 == mui) return String.Empty;
+            if (0 == lui && 0 == mui) return string.Empty;
             return mui.ToString("X").PadLeft(10, '0') + lui.ToString("X").PadLeft(10, '0');
         }
 
@@ -95,10 +95,10 @@ namespace ElaBleCommunication.Model
          * \param [in] ui : associated uint
          * \return hexa string
          */
-        private String GetFormatedBid(UInt64 ui)
+        private string GetFormatedBid(ulong ui)
         {
             if (0 != ui) return ui.ToString("X").PadLeft(12, '0');
-            else return String.Empty;
+            else return string.Empty;
         }
 
         /** 
@@ -111,9 +111,9 @@ namespace ElaBleCommunication.Model
                 && LDataSection[2].Length > 64)
             {
                 if (LDataSection[2].Substring(0, 5) != EddystoneFrameCheck) return;
-                MNid = UInt64.Parse(LDataSection[2].Substring(12, 14).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
-                LNid = UInt64.Parse(LDataSection[2].Substring(27, 14).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
-                Bid = UInt64.Parse(LDataSection[2].Substring(42, 17).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
+                MNid = ulong.Parse(LDataSection[2].Substring(12, 14).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
+                LNid = ulong.Parse(LDataSection[2].Substring(27, 14).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
+                Bid = ulong.Parse(LDataSection[2].Substring(42, 17).Replace("-", ""), System.Globalization.NumberStyles.HexNumber);
                 //StrNid = getFormatedNid(LNid, MNid);
                 //StrBid = getFormatedBid(Bid);
             }
@@ -146,7 +146,7 @@ namespace ElaBleCommunication.Model
             LManufacturerData.Clear();
             if (args.Advertisement.ManufacturerData.Count > 0)
             {
-                string manufacturerDataString = String.Empty;
+                string manufacturerDataString = string.Empty;
                 foreach (BluetoothLEManufacturerData mmanufacturerD in args.Advertisement.ManufacturerData)
                 {
                     var data = new byte[mmanufacturerD.Data.Length];
@@ -168,7 +168,7 @@ namespace ElaBleCommunication.Model
             LDataSection.Clear();
             if (args.Advertisement.DataSections.Count > 0)
             {
-                string datasection = String.Empty;
+                string datasection = string.Empty;
                 foreach (BluetoothLEAdvertisementDataSection section in args.Advertisement.DataSections)
                 {
                     var data = new byte[section.Data.Length];
@@ -190,10 +190,10 @@ namespace ElaBleCommunication.Model
         /**
          * \fn getFormattedData
          */
-        public String GetFormattedData()
+        public string GetFormattedData()
         {
             return $"{Timestamp.ToString()};" +
-                $"{MacAddress.macAdressLongToHexa(BluetoothAddress)};" +
+                $"{MacAddressHelper.macAdressLongToHexa(BluetoothAddress)};" +
                 $"{LocalName};" +
                 $"{Rssi};";
         }

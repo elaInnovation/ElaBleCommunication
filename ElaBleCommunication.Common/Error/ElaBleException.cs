@@ -6,7 +6,7 @@ using System.Text;
  * \namespace ElaBluetoothCommunication.Error
  * \brief namespace associated to the errors from the library
  */
-namespace ElaBleCommunicationLegacy.Error
+namespace ElaBleCommunication.Common.Error
 {
     /**
      * \class ElaBleException

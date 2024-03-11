@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ElaBleCommunicationLegacy
+﻿
+namespace ElaBleCommunication.Common
 {
     public class ElaCharacteristics
     {

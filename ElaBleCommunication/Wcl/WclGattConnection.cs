@@ -5,6 +5,8 @@ using System.Threading;
 using ElaSoftwareCommon.Error;
 using wclBluetooth;
 using wclCommon;
+using ElaBleCommunication.Common;
+using ElaBleCommunication.Common.Tools;
 
 
 namespace ElaBleCommunication.Wcl
@@ -25,7 +27,7 @@ namespace ElaBleCommunication.Wcl
 
         private bool _debug = false;
 
-        private string MacAddress { get => _client == null ? "" : Tools.MacAddress.macAdressLongToHexa(_client.Address); }
+        private string MacAddress { get => _client == null ? "" : MacAddressHelper.macAdressLongToHexa(_client.Address); }
 
         public WclGattConnection(bool debug)
         {
@@ -245,7 +247,9 @@ namespace ElaBleCommunication.Wcl
 
             var res = _client.WriteCharacteristicValue(_txNordicCharacteristic.Value, command);
 
-            return res == wclErrors.WCL_E_SUCCESS ? ErrorServiceHandlerBase.ERR_OK : ErrorServiceHandlerBase.ERR_BLUETOOTH_SEND_COMMAND_ERROR;
+            if (res == wclErrors.WCL_E_SUCCESS) return ErrorServiceHandlerBase.ERR_OK;
+
+            throw new Exception($"Send error command: {ErrorMessages.Get(res)}");
         }
 
         private void Client_OnCharacteristicChanged(object sender, ushort handle, byte[] value)
@@ -287,7 +291,7 @@ namespace ElaBleCommunication.Wcl
         {
             if (_debug)
             {
-                var macAddress = _client == null ? "" : Tools.MacAddress.macAdressLongToHexa(_client.Address);
+                var macAddress = _client == null ? "" : MacAddressHelper.macAdressLongToHexa(_client.Address);
                 var errorMessage = errorCode == wclErrors.WCL_E_SUCCESS ? string.Empty : ErrorMessages.Get(errorCode);
                 Console.WriteLine($"[{nameof(WclGattConnection)}][{macAddress}]: {message}. {errorMessage}");
             }

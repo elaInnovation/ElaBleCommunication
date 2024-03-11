@@ -1,5 +1,6 @@
-﻿using ElaBleCommunication.Error;
-using ElaBleCommunication.Tools;
+﻿using ElaBleCommunication.Common.Error;
+using ElaBleCommunication.Common.Tools;
+using ElaBleCommunication.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,7 @@ namespace ElaBleCommunication.Wcl
             await _connectLock.WaitAsync();
             try
             {
-                long lMacAddress = MacAddress.macAdressHexaToLong(macAddress);
+                long lMacAddress = MacAddressHelper.macAdressHexaToLong(macAddress);
                 _gattConnection = new WclGattConnection(debug);
                 var connected = _gattConnection.Connect(_radio, lMacAddress);
 
@@ -81,10 +82,6 @@ namespace ElaBleCommunication.Wcl
             try
             {
                 return DisconnectDevice_MustBeUnderLock();
-            }
-            catch (Exception)
-            {
-                throw;
             }
             finally
             {
@@ -125,10 +122,6 @@ namespace ElaBleCommunication.Wcl
                 var commandBytes = Encoding.UTF8.GetBytes(command);
                 return await SendCommandAsync_MustBeUnderLock(commandBytes);
             }
-            catch (Exception ex)
-            {
-                throw new ElaBleException("An exception occurs while tryig to sending command from device.", ex);
-            }
             finally
             {
                 _connectLock.Release();
@@ -156,10 +149,7 @@ namespace ElaBleCommunication.Wcl
         {
             if (_gattConnection == null) return Task.FromResult(ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_NOT_CONNECTED);
 
-            _gattConnection.SendCommand(command);
-
-            return Task.FromResult(ErrorServiceHandlerBase.ERR_OK);
-
+            return Task.FromResult(_gattConnection.SendCommand(command));
         }
     }
 }

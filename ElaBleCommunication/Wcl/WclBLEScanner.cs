@@ -1,4 +1,5 @@
-﻿using ElaBleCommunication.Error;
+﻿using ElaBleCommunication.Common.Error;
+using ElaBleCommunication.Common;
 using ElaSoftwareCommon.Error;
 using ElaTagClassLibrary.ElaTags;
 using ElaTagClassLibrary.ElaTags.Interoperability;
@@ -87,6 +88,7 @@ namespace ElaBleCommunication.Wcl
                 _initializedFlag.Set();
                 wclMessageBroadcaster.Wait(_stopScanFlag);
                 _wclBluetoothLeBeaconWatcher.Stop();
+                return;
             }
 
             _initializedFlag.Set();
@@ -137,8 +139,8 @@ namespace ElaBleCommunication.Wcl
 
                 data.id = macAddress;
                 data.rssi = Rssi;
-                if (data.identification is null) data.identification = new ElaIdenficationObject();
-                data.identification.macaddress = data.id;
+                if (data.identification == null) data.identification = new ElaIdenficationObject();
+                data.identification.macaddress = macAddress;
                 data.version = ElaModelVersion.get();
                 data.payload = payload;
 

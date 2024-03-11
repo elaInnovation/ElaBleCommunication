@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Storage.Streams;
 
-namespace ElaBleCommunicationLegacy.Tools
+namespace ElaBleCommunication.Legacy.Windows
 {
     public class BleDeviceTranslator
     {

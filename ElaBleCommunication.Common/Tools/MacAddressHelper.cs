@@ -5,13 +5,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ElaBleCommunication.Tools
+namespace ElaBleCommunication.Common.Tools
 {
     /**
      * \class MacAddress
      * \brief class to manage mac address from ulong to string
      */
-    public class MacAddress
+    public class MacAddressHelper
     {
         public enum MacAddressType
         {

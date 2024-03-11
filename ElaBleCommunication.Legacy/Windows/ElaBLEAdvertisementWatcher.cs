@@ -1,6 +1,4 @@
-﻿using ElaBleCommunication.Error;
-using ElaBleCommunication.Model;
-using ElaBleCommunication.Tools;
+﻿using ElaBleCommunication.Common.Error;
 using ElaSoftwareCommon.Error;
 using ElaTagClassLibrary.ElaTags.Interoperability;
 using System;
@@ -12,7 +10,7 @@ using Windows.Devices.Bluetooth.Advertisement;
  * \namespace ElaBleCommunication
  * \brief namespace associated to the Bluetooth configuration
  */
-namespace ElaBleCommunication.Windows
+namespace ElaBleCommunication.Legacy.Windows
 {
     /** \brief delegate associated to the Bluetooth device */
     public delegate void NewAdvertismentreceived(ElaBaseData device);

@@ -1,5 +1,6 @@
-﻿using ElaBleCommunicationLegacy.Error;
-using ElaBleCommunicationLegacy.Tools;
+﻿using ElaBleCommunication.Common.Error;
+using ElaBleCommunication.Common.Tools;
+using ElaBleCommunication.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ using System.Threading;
  * \namespace ElaBluetoothCommunication
  * \brief namespace associated to the Bluetooth configuration
  */
-namespace ElaBleCommunicationLegacy.Windows
+namespace ElaBleCommunication.Legacy.Windows
 {
     /** \brief notify that a new message has been received from tag */
     public delegate void NotifyResponseReceived(byte[] response);
@@ -63,7 +64,7 @@ namespace ElaBleCommunicationLegacy.Windows
                         DisconnectDevice_MustBeUnderLock();
                 }
 
-                ulong ulMacAddress = MacAddress.macAdressHexaToULong(macAddress);
+                ulong ulMacAddress = MacAddressHelper.macAdressHexaToULong(macAddress);
 
                 m_ConnectedDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(ulMacAddress);
                 if (null == m_ConnectedDevice) return ErrorServiceHandlerBase.ERR_ELA_BLE_COMMUNICATION_CONNECT_ERROR;
