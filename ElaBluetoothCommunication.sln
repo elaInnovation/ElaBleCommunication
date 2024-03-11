@@ -3,20 +3,28 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElaBleCommunicationUI", "ElaBleCommunicationUI\ElaBleCommunicationUI.csproj", "{2367BC97-C3C1-430C-A2DB-7861B52F8418}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElaBleCommunication.UI", "ElaBleCommunicationUI\ElaBleCommunication.UI.csproj", "{2367BC97-C3C1-430C-A2DB-7861B52F8418}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElaBleCommunication", "ElaBleCommunication\ElaBleCommunication.csproj", "{479556A3-D059-44D1-846D-428B960E5630}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElaBleCommunication_Legacy", "ElaBleCommunication_Legacy\ElaBleCommunication_Legacy.csproj", "{6A14F85F-9B70-44D3-9D93-DD0194E34B2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElaBleCommunication.Common", "ElaBleCommunication.Common\ElaBleCommunication.Common.csproj", "{5AA84181-756F-42BC-948D-BAA960A12073}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElaBleCommunication.Legacy", "ElaBleCommunication.Legacy\ElaBleCommunication.Legacy.csproj", "{F6579781-D44A-46AF-ADEC-F3469E3CDECC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug WCL|Any CPU = Debug WCL|Any CPU
+		Debug WCL|ARM32 = Debug WCL|ARM32
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM32 = Debug|ARM32
 		Release|Any CPU = Release|Any CPU
 		Release|ARM32 = Release|ARM32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Debug WCL|Any CPU.ActiveCfg = Debug WCL|Any CPU
+		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Debug WCL|Any CPU.Build.0 = Debug WCL|Any CPU
+		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Debug WCL|ARM32.ActiveCfg = Debug WCL|Any CPU
+		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Debug WCL|ARM32.Build.0 = Debug WCL|Any CPU
 		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Debug|ARM32.ActiveCfg = Debug|Any CPU
@@ -25,6 +33,9 @@ Global
 		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Release|ARM32.ActiveCfg = Release|Any CPU
 		{2367BC97-C3C1-430C-A2DB-7861B52F8418}.Release|ARM32.Build.0 = Release|Any CPU
+		{479556A3-D059-44D1-846D-428B960E5630}.Debug WCL|Any CPU.ActiveCfg = Debug|Any CPU
+		{479556A3-D059-44D1-846D-428B960E5630}.Debug WCL|ARM32.ActiveCfg = Debug|ARM32
+		{479556A3-D059-44D1-846D-428B960E5630}.Debug WCL|ARM32.Build.0 = Debug|ARM32
 		{479556A3-D059-44D1-846D-428B960E5630}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{479556A3-D059-44D1-846D-428B960E5630}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{479556A3-D059-44D1-846D-428B960E5630}.Debug|ARM32.ActiveCfg = Debug|ARM32
@@ -33,14 +44,30 @@ Global
 		{479556A3-D059-44D1-846D-428B960E5630}.Release|Any CPU.Build.0 = Release|Any CPU
 		{479556A3-D059-44D1-846D-428B960E5630}.Release|ARM32.ActiveCfg = Release|ARM32
 		{479556A3-D059-44D1-846D-428B960E5630}.Release|ARM32.Build.0 = Release|ARM32
-		{6A14F85F-9B70-44D3-9D93-DD0194E34B2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6A14F85F-9B70-44D3-9D93-DD0194E34B2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6A14F85F-9B70-44D3-9D93-DD0194E34B2B}.Debug|ARM32.ActiveCfg = Debug|Any CPU
-		{6A14F85F-9B70-44D3-9D93-DD0194E34B2B}.Debug|ARM32.Build.0 = Debug|Any CPU
-		{6A14F85F-9B70-44D3-9D93-DD0194E34B2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6A14F85F-9B70-44D3-9D93-DD0194E34B2B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6A14F85F-9B70-44D3-9D93-DD0194E34B2B}.Release|ARM32.ActiveCfg = Release|Any CPU
-		{6A14F85F-9B70-44D3-9D93-DD0194E34B2B}.Release|ARM32.Build.0 = Release|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Debug WCL|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Debug WCL|Any CPU.Build.0 = Debug|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Debug WCL|ARM32.ActiveCfg = Debug|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Debug WCL|ARM32.Build.0 = Debug|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Debug|ARM32.ActiveCfg = Debug|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Debug|ARM32.Build.0 = Debug|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Release|ARM32.ActiveCfg = Release|Any CPU
+		{5AA84181-756F-42BC-948D-BAA960A12073}.Release|ARM32.Build.0 = Release|Any CPU
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Debug WCL|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Debug WCL|Any CPU.Build.0 = Debug|Any CPU
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Debug WCL|ARM32.ActiveCfg = Debug|ARM32
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Debug WCL|ARM32.Build.0 = Debug|ARM32
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Debug|ARM32.ActiveCfg = Debug|ARM32
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Debug|ARM32.Build.0 = Debug|ARM32
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Release|ARM32.ActiveCfg = Release|ARM32
+		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Release|ARM32.Build.0 = Release|ARM32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
