@@ -4,13 +4,13 @@
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<Platforms>AnyCPU;ARM32</Platforms>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<AssemblyVersion>1.2.7</AssemblyVersion>
-	<FileVersion>1.2.7</FileVersion>
-	<Version>1.2.7</Version>
+	<AssemblyVersion>1.2.9</AssemblyVersion>
+	<FileVersion>1.2.9</FileVersion>
+	<Version>1.2.9</Version>
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="ElaBleCommunication.Common" Version="1.0.0" />
+	<PackageReference Include="ElaBleCommunication.Common" Version="1.0.2" />
 	<PackageReference Include="System.IO.Ports" Version="4.7.0" />
 	<PackageReference Include="wclBluetoothFramework" Version="7.17.9" />
   </ItemGroup>
