@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using wclBluetooth;
 using wclCommon;
+using System.Linq;
 
 
 namespace ElaBleCommunication.Wcl
@@ -32,6 +33,11 @@ namespace ElaBleCommunication.Wcl
         private Thread _scanningThread;
         private AutoResetEvent _initializedFlag;
         private AutoResetEvent _stopScanFlag;
+
+        private object _ScanResponsesLock = new object();
+        private Dictionary<long, ScanResponse> _scanResponses = new Dictionary<long, ScanResponse>();
+
+        public bool IsScanning { get => _isStarted; }
 
         public WclBLEScanner(wclBluetoothRadio radio)
         {
@@ -55,7 +61,16 @@ namespace ElaBleCommunication.Wcl
                 }
             }
 
-            _mode = withScanResponse ? wclBluetoothLeScanningMode.smActive : wclBluetoothLeScanningMode.smPassive;
+            if (withScanResponse)
+            {
+                _mode = wclBluetoothLeScanningMode.smActive;
+                ClearResponses();
+            }
+            else
+            {
+                _mode = wclBluetoothLeScanningMode.smPassive;
+            }
+                
             _interval = interval;
             _window = window;
 
@@ -104,6 +119,8 @@ namespace ElaBleCommunication.Wcl
                 _scanningThread.Join();
                 _scanningThread = null;
 
+                ClearResponses();
+
                 _isStarted = false;
 
                 return ErrorServiceHandlerBase.ERR_OK;
@@ -114,14 +131,89 @@ namespace ElaBleCommunication.Wcl
             }
         }
 
+        private void ClearResponses()
+        {
+            lock (_ScanResponsesLock)
+            {
+                foreach (var response in _scanResponses.Values)
+                {
+                    response.ResponseTimeout -= ScanResponse_ResponseTimeout;
+                    response.Dispose();
+                }
+                _scanResponses.Clear();
+            }
+        }
+
         private void M_WclBluetoothLeBeaconWatcher_OnAdvertisementRawFrame(object Sender, long Address, long Timestamp, sbyte Rssi, byte DataType, byte[] Data)
         {
-            ParseAdvertisement(Address, Rssi, Data);
+            if (DataType == (byte)wclBluetoothLeAdvertisementType.atScanResponse)
+            {
+                Debug(Address, $"Received scan response for {Address}");
+                lock (_ScanResponsesLock)
+                {
+                    if (_scanResponses.ContainsKey(Address))
+                    {
+                        var scanResponse = _scanResponses[Address];
+                        ParseAdvertisement(Address, Rssi, scanResponse.OriginalPayload.Concat(Data).ToArray());
+                        _scanResponses[Address].ResponseTimeout -= ScanResponse_ResponseTimeout;
+                        _scanResponses[Address].Dispose();
+                        _scanResponses.Remove(Address);
+                        Debug(Address, $"Concatenate payloads for {Address}");
+                    }
+                    else
+                    {
+                        Debug(Address, $"No ScanResponse for {Address}: already timed out");
+                    }
+                }
+            }
         }
 
         private void M_WclBluetoothLeBeaconWatcher_OnAdvertisementReceived(object Sender, long Address, long Timestamp, sbyte Rssi, byte[] Data)
         {
-            ParseAdvertisement(Address, Rssi, Data);
+            if (_mode == wclBluetoothLeScanningMode.smActive)
+            {
+                lock (_ScanResponsesLock)
+                {
+                    if (!_scanResponses.ContainsKey(Address))
+                    {
+                        var scanResponse = new ScanResponse(Address, Data, Rssi);
+                        _scanResponses.Add(Address, scanResponse);
+                        scanResponse.ResponseTimeout += ScanResponse_ResponseTimeout;
+                        Debug(Address, $"Start waiting for scan response from {Address}");
+                    }
+                    else
+                    {
+                        ParseAdvertisement(Address, Rssi, Data);
+                    }
+                }
+            }
+            else
+            {
+                ParseAdvertisement(Address, Rssi, Data);
+            }
+        }
+
+        private void ScanResponse_ResponseTimeout(long address)
+        {
+            lock (_ScanResponsesLock)
+            {
+                if (_scanResponses.ContainsKey(address))
+                {
+                    var scanResponse = _scanResponses[address];
+
+                    ParseAdvertisement(scanResponse.Address, scanResponse.Rssi, scanResponse.OriginalPayload);
+
+                    scanResponse.ResponseTimeout -= ScanResponse_ResponseTimeout;
+                    scanResponse.Dispose();
+                    _scanResponses.Remove(address);
+
+                    Debug(address, $"Timed out while waiting for scan response from {address}");
+                }
+                else
+                {
+                    Debug(address, $"ScanResponse {address} timed out but object not in dict: scan response correctly concatenated");
+                }
+            }
         }
 
         private const string _regexMac = "(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})";
@@ -136,7 +228,7 @@ namespace ElaBleCommunication.Wcl
                 string payload = "";
                 foreach (byte b in Data) payload += b.ToString("X2");
                 var data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload);
-
+                
                 data.id = macAddress;
                 data.rssi = Rssi;
                 if (data.identification == null) data.identification = new ElaIdenficationObject();
@@ -150,6 +242,13 @@ namespace ElaBleCommunication.Wcl
             {
                 Console.WriteLine($"[{nameof(WclBLEScanner)}][{nameof(ParseAdvertisement)}] Error while parsing received advertisement frame: {ex.Message}");
             }
+        }
+
+        private void Debug(long address, string message) 
+        {
+#if DEBUG
+            Console.WriteLine(message);
+#endif
         }
     }
 }
