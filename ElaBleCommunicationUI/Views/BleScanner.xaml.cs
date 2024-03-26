@@ -14,9 +14,9 @@ namespace ElaBleCommunicationUI.Views
     {
         /** \brief ble scanner declaration */
 #if WCL
-        private WclBLEScanner scanner = MainWindow.BleController.Scanner;
+        private readonly WclBLEScanner _scanner = MainWindow.BleController.Scanner;
 #else
-        private ElaBLEAdvertisementWatcher scanner = new ElaBLEAdvertisementWatcher();
+        private readonly ElaBLEAdvertisementWatcher _scanner = new ElaBLEAdvertisementWatcher();
 #endif
 
         /** \brief constructor */
@@ -32,7 +32,7 @@ namespace ElaBleCommunicationUI.Views
          */
         private void initializeInternalComponent()
         {
-            scanner.evAdvertisementReceived += this.Scanner_evAdvertisementReceived;
+            _scanner.evAdvertisementReceived += Scanner_evAdvertisementReceived;
         }
 
         #region event controller
@@ -44,18 +44,18 @@ namespace ElaBleCommunicationUI.Views
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
 #if WCL
-            scanner.Start();
+            _scanner.Start(true, 29, 29);
 #else
-            this.scanner.StartBluetoothScanner();
+            _scanner.StartBluetoothScanner();
 #endif
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
 #if WCL
-            scanner.Stop();
+            _scanner.Stop();
 #else
-            this.scanner.StopBluetoothScanner();
+            _scanner.StopBluetoothScanner();
 #endif
         }
         #endregion
