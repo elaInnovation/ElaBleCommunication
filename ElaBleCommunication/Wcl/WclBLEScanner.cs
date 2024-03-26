@@ -12,6 +12,7 @@ using System.Threading;
 using wclBluetooth;
 using wclCommon;
 using System.Linq;
+using System.Net;
 
 
 namespace ElaBleCommunication.Wcl
@@ -247,7 +248,11 @@ namespace ElaBleCommunication.Wcl
         private void Debug(long address, string message) 
         {
 #if DEBUG
+            string macAddress = Regex.Replace(string.Format("{0:X}", address), _regexMac, _regexReplaceMac);
+            //if (macAddress.ToUpperInvariant() == "CD:E8:1E:81:EC:FD")
+            //{
             Console.WriteLine(message);
+            //}
 #endif
         }
     }
