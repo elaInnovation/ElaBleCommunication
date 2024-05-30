@@ -13,9 +13,10 @@ using wclBluetooth;
 using wclCommon;
 using System.Linq;
 using System.Net;
+using ElaBleCommunication.Wcl.Models;
 
 
-namespace ElaBleCommunication.Wcl
+namespace ElaBleCommunication.Wcl.Controllers
 {
     public class WclBLEScanner
     {
@@ -52,7 +53,7 @@ namespace ElaBleCommunication.Wcl
         {
             if (_isStarted)
             {
-                if (interval == _interval && window == _window && ((withScanResponse && _mode == wclBluetoothLeScanningMode.smActive) || (!withScanResponse && _mode == wclBluetoothLeScanningMode.smPassive)))
+                if (interval == _interval && window == _window && (withScanResponse && _mode == wclBluetoothLeScanningMode.smActive || !withScanResponse && _mode == wclBluetoothLeScanningMode.smPassive))
                 {
                     return ErrorServiceHandlerBase.ERR_OK;
                 }
@@ -71,7 +72,7 @@ namespace ElaBleCommunication.Wcl
             {
                 _mode = wclBluetoothLeScanningMode.smPassive;
             }
-                
+
             _interval = interval;
             _window = window;
 
@@ -229,7 +230,7 @@ namespace ElaBleCommunication.Wcl
                 string payload = "";
                 foreach (byte b in Data) payload += b.ToString("X2");
                 var data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload);
-                
+
                 data.id = macAddress;
                 data.rssi = Rssi;
                 if (data.identification == null) data.identification = new ElaIdenficationObject();
@@ -245,7 +246,7 @@ namespace ElaBleCommunication.Wcl
             }
         }
 
-        private void Debug(long address, string message) 
+        private void Debug(long address, string message)
         {
 #if DEBUG
             string macAddress = Regex.Replace(string.Format("{0:X}", address), _regexMac, _regexReplaceMac);

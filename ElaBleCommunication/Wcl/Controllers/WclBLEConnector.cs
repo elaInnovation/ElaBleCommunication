@@ -14,7 +14,7 @@ using wclBluetooth;
  * \namespace ElaBluetoothCommunication
  * \brief namespace associated to the Bluetooth configuration
  */
-namespace ElaBleCommunication.Wcl
+namespace ElaBleCommunication.Wcl.Controllers
 {
     /**
      * \class WclBLEConnector

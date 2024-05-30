@@ -1,48 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using ElaBleCommunication.Wcl.Models;
 using wclBluetooth;
 using wclCommon;
+using static wclCommon.Api.Win.Rt;
 //using Windows.Devices.Radios;
 
-namespace ElaBleCommunication.Wcl
+namespace ElaBleCommunication.Wcl.Controllers
 {
     public class WclBleController
     {
+        private string _radioName = null;
+        private wclBluetoothManager _manager;
+        private wclBluetoothRadio _radio;
+
+        public bool IsAvailable => CheckAvailable();
+        public AppTypeEnum AppType { get; private set; }
         public WclBLEScanner Scanner { get; private set; }
         public WclBLEConnector Connector { get; private set; }
 
         public WclBleController()
         {
-            Init();
+            Initialize();
         }
 
         public WclBleController(string radioName)
         {
-            Init(radioName);
+            _radioName = radioName;
+            Initialize(radioName);
         }
 
         public WclBleController(string radioName, bool forUIapp)
         {
-            Init(radioName, forUIapp);
+            _radioName = radioName;
+            Initialize(radioName, forUIapp);
         }
 
         public WclBleController(bool forUIapp)
         {
-            Init(null, forUIapp);
+            Initialize(forUIapp: forUIapp);
         }
 
-        private void Init(string radioName = null, bool forUIapp = false)
+        private void Initialize(string radioName = null, bool forUIapp = false)
         {
             if (forUIapp)
             {
                 // absolutely necessary when this lib is used in a UI framework
                 wclMessageBroadcaster.SetSyncMethod(wclMessageSynchronizationKind.skMessages);
+                AppType = AppTypeEnum.UI;
             }
             else
             {
                 // Apc = Asynchronous Procedure Call
                 wclMessageBroadcaster.SetSyncMethod(wclMessageSynchronizationKind.skApc);
+                AppType = AppTypeEnum.Default;
             }
 
             // Note:
@@ -50,37 +62,56 @@ namespace ElaBleCommunication.Wcl
             // thread. An application is responsible for the synchronization with UI thread.
             // Must be used carefully. Most of the time use skApc instead.
 
-            wclBluetoothRadio radio = null;
-            var manager = new wclBluetoothManager();
-            var result = manager.Open();
+            _manager = new wclBluetoothManager();
+            var result = _manager.Open();
             if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Error opening ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
+
+            GetRadio(radioName);
+
+            Scanner = new WclBLEScanner(_radio);
+            Connector = new WclBLEConnector(_radio);
+        }
+
+        private void GetRadio(string radioName = null)
+        {
+            _radio = null;
 
             if (string.IsNullOrEmpty(radioName))
             {
-                result = manager.GetLeRadio(out radio);
+                var result = _manager.GetLeRadio(out _radio);
                 if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Get working radio failed: 0x{result:X8} {ErrorMessages.Get(result)}");
             }
             else
             {
-                if (manager.Count == 0) throw new Exception("No radio could be found");
-                for (int i = 0; i < manager.Count; i++)
+                if (_manager.Count == 0) throw new Exception("No radio could be found");
+                for (int i = 0; i < _manager.Count; i++)
                 {
-                    if (manager[i].Available)
+                    if (_manager[i].Available)
                     {
-                        var currentRadio = manager[i];
+                        var currentRadio = _manager[i];
                         currentRadio.GetName(out var name);
                         if (name == radioName)
                         {
-                            radio = currentRadio;
+                            _radio = currentRadio;
                             break;
                         }
                     }
                 }
-                if (radio == null) throw new Exception($"No available radio wilth name \"{radioName}\" could be found");
-            }          
+                if (_radio == null) throw new Exception($"No available radio wilth name \"{radioName}\" could be found");
+            }
+        }
 
-            Scanner = new WclBLEScanner(radio);
-            Connector = new WclBLEConnector(radio);
+        private bool CheckAvailable()
+        {
+            try
+            {
+                GetRadio(_radioName);
+                return _radio != null;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

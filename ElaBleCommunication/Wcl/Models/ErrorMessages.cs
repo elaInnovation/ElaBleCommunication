@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ElaBleCommunication.Wcl
+namespace ElaBleCommunication.Wcl.Models
 {
     public static class ErrorMessages
     {
@@ -11,7 +11,7 @@ namespace ElaBleCommunication.Wcl
         static ErrorMessages()
         {
             var fields = typeof(wclCommon.wclErrors).GetFields();
-            foreach(var field in fields) 
+            foreach (var field in fields)
             {
                 var errorCodeStr = field.GetValue(null).ToString();
                 if (int.TryParse(errorCodeStr, out var errorCode) && !_messages.ContainsKey(errorCode))

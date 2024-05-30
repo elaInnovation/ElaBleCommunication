@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Timers;
 
-namespace ElaBleCommunication.Wcl
+namespace ElaBleCommunication.Wcl.Models
 {
     public delegate void ScanResponseTimedOut(long address);
 
@@ -19,8 +19,8 @@ namespace ElaBleCommunication.Wcl
         public bool TimedOut { get; private set; }
 
         private Timer _timer;
-        
-        
+
+
         public ScanResponse(long address, byte[] originalPayload, sbyte rssi)
         {
             Address = address;

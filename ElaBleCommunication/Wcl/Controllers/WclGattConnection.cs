@@ -7,9 +7,10 @@ using wclBluetooth;
 using wclCommon;
 using ElaBleCommunication.Common;
 using ElaBleCommunication.Common.Tools;
+using ElaBleCommunication.Wcl.Models;
 
 
-namespace ElaBleCommunication.Wcl
+namespace ElaBleCommunication.Wcl.Controllers
 {
     public class WclGattConnection
     {
@@ -99,7 +100,7 @@ namespace ElaBleCommunication.Wcl
         public void Disconnect()
         {
             if (_gattConnectionThread == null) return;
-            
+
             _terminateEvent.Set();
             _gattConnectionThread.Join();
 
@@ -175,19 +176,19 @@ namespace ElaBleCommunication.Wcl
         {
             wclGattCharacteristic[] characteristics;
             int res = _client.ReadCharacteristics(service, wclGattOperationFlag.goNone, out characteristics);
-            
+
             if (res != wclErrors.WCL_E_SUCCESS)
             {
                 PrintDebug($"\t\tread characteristics error: 0x{res:X8}", res);
                 return;
             }
-                
+
             if (characteristics == null || characteristics.Length == 0)
             {
                 PrintDebug($"\t\tno characteristics found");
                 return;
             }
-                    
+
             foreach (wclGattCharacteristic characteristic in characteristics)
             {
                 PrintDebug($"\t\tcharacteristic: {UuidToString(characteristic.Uuid)}");
@@ -238,7 +239,7 @@ namespace ElaBleCommunication.Wcl
                 }
             }
         }
-        
+
 
         public uint SendCommand(byte[] command)
         {
