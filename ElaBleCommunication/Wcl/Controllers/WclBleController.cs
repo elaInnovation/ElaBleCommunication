@@ -160,8 +160,8 @@ namespace ElaBleCommunication.Wcl.Controllers
         {
             try
             {
-                GetRadio(_radioName);
-                return _radio != null;
+                if (string.IsNullOrEmpty(_radioName)) return false;
+                return GetAvailableRadios().Contains(_radioName);
             }
             catch
             {
