@@ -172,7 +172,8 @@ namespace ElaBleCommunication.Wcl.Controllers
         private void OpenManager()
         {
             var result = _manager.Open();
-            if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Error opening ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
+            if (result == wclErrors.WCL_E_SUCCESS || result == 327681) return;
+            throw new Exception($"Error opening ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
         }
 
         private void CloseManager()
