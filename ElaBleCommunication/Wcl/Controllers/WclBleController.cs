@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using ElaBleCommunication.Wcl.Models;
 using wclBluetooth;
 using wclCommon;
-using static wclCommon.Api.Win.Rt;
-//using Windows.Devices.Radios;
 
 namespace ElaBleCommunication.Wcl.Controllers
 {
@@ -15,14 +12,13 @@ namespace ElaBleCommunication.Wcl.Controllers
         private wclBluetoothManager _manager;
         private wclBluetoothRadio _radio;
 
-        public bool IsAvailable => CheckAvailable();
         public AppTypeEnum AppType { get; private set; }
 
         private WclBLEScanner _scanner;
         public WclBLEScanner Scanner 
         { 
             get {
-                if (_scanner == null) throw new Exception("Controller not initialized : consider calling Open() method");
+                if (_scanner == null) throw new Exception($"Controller not initialized : consider calling {nameof(SetRadio)}() method");
                 return _scanner;  
             }
             private set { _scanner = value; } 
@@ -33,7 +29,7 @@ namespace ElaBleCommunication.Wcl.Controllers
         {
             get
             {
-                if (_connector == null) throw new Exception("Controller not initialized : consider calling Open() method");
+                if (_connector == null) throw new Exception($"Controller not initialized : consider calling {nameof(SetRadio)}() method");
                 return _connector;
             }
             private set { _connector = value; }
@@ -47,13 +43,13 @@ namespace ElaBleCommunication.Wcl.Controllers
         public WclBleController(string radioName)
         {
             Initialize(AppTypeEnum.Default);
-            Open(radioName);
+            SetRadio(radioName);
         }
 
         public WclBleController(string radioName, AppTypeEnum appType = AppTypeEnum.Default)
         {
             Initialize(appType);
-            Open(radioName);
+            SetRadio(radioName);
         }
 
         public WclBleController(AppTypeEnum appType)
@@ -81,10 +77,11 @@ namespace ElaBleCommunication.Wcl.Controllers
             // thread. An application is responsible for the synchronization with UI thread.
             // Must be used carefully. Most of the time use skApc instead.
 
-            _manager = new wclBluetoothManager();           
+            _manager = new wclBluetoothManager();
+            var result = _manager.Open();
         }
 
-        public void Open(string radioName = null)
+        public void SetRadio(string radioName = null)
         {
             GetRadio(radioName);
 
@@ -94,10 +91,6 @@ namespace ElaBleCommunication.Wcl.Controllers
 
         public List<string> GetAvailableRadios()
         {
-            if (_manager == null) throw new Exception("Bluetooth manager not initialized");
-
-            OpenManager();
-
             var radios = new List<string>();
             for (int i = 0; i < _manager.Count; i++)
             {
@@ -109,77 +102,56 @@ namespace ElaBleCommunication.Wcl.Controllers
                 }
             }
 
-            CloseManager();
-
             return radios;
         }
 
         private void GetRadio(string radioName = null)
         {
-            try
+            _radio = null;
+
+            if (string.IsNullOrEmpty(radioName))
             {
-                OpenManager();
-
-                _radio = null;
-
-                if (string.IsNullOrEmpty(radioName))
+                var result = _manager.GetLeRadio(out _radio);
+                if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Get working radio failed: 0x{result:X8} {ErrorMessages.Get(result)}");
+                _radio.GetName(out _radioName);
+            }
+            else
+            {
+                if (_manager.Count == 0) throw new Exception("No radio could be found");
+                for (int i = 0; i < _manager.Count; i++)
                 {
-                    var result = _manager.GetLeRadio(out _radio);
-                    if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Get working radio failed: 0x{result:X8} {ErrorMessages.Get(result)}");
-                    _radio.GetName(out _radioName);
-                }
-                else
-                {
-                    if (_manager.Count == 0) throw new Exception("No radio could be found");
-                    for (int i = 0; i < _manager.Count; i++)
+                    if (_manager[i].Available)
                     {
-                        if (_manager[i].Available)
+                        var currentRadio = _manager[i];
+                        currentRadio.GetName(out var name);
+                        if (name == radioName)
                         {
-                            var currentRadio = _manager[i];
-                            currentRadio.GetName(out var name);
-                            if (name == radioName)
-                            {
-                                _radio = currentRadio;
-                                _radioName = radioName;
-                                return;
-                            }
+                            _radio = currentRadio;
+                            _radioName = radioName;
+                            return;
                         }
                     }
-                    if (_radio == null) throw new Exception($"No available radio wilth name \"{radioName}\" could be found");
                 }
+                if (_radio == null) throw new Exception($"No available radio wilth name \"{radioName}\" could be found");
             }
-            catch (Exception)
-            {
-                CloseManager();
-                throw;
-            }
-            
         }
 
-        private bool CheckAvailable()
+        public bool CheckAvailable(string radioName = null)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(_radioName)) return false;
-                return GetAvailableRadios().Contains(_radioName);
-            }
-            catch
-            {
-                return false;
-            }
+            if (string.IsNullOrEmpty(radioName)) return GetAvailableRadios().Count > 0;
+            return GetAvailableRadios().Contains(radioName);
         }
 
         private void OpenManager()
         {
             var result = _manager.Open();
-            if (result == wclErrors.WCL_E_SUCCESS || result == 327681) return;
-            throw new Exception($"Error opening ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
+            if (result != wclErrors.WCL_E_SUCCESS || result != 0x00050001) throw new Exception($"Error opening ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
         }
 
         private void CloseManager()
         {
             var result = _manager.Close();
-            if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Error closing ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
+            if (result != wclErrors.WCL_E_SUCCESS || result != 0x00050000) throw new Exception($"Error closing ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
         }
     }
 }
