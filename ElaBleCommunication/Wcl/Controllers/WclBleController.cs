@@ -153,5 +153,12 @@ namespace ElaBleCommunication.Wcl.Controllers
             var result = _manager.Close();
             if (result != wclErrors.WCL_E_SUCCESS || result != 0x00050000) throw new Exception($"Error closing ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
         }
+
+        public void Close()
+        {
+            _scanner.Stop();
+            _manager.Close();
+            _manager = null;
+        }
     }
 }
