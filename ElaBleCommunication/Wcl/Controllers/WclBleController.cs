@@ -55,6 +55,7 @@ namespace ElaBleCommunication.Wcl.Controllers
         public WclBleController(AppTypeEnum appType)
         {
             Initialize(appType);
+            SetRadio();
         }
 
         private void Initialize(AppTypeEnum appType)
@@ -79,6 +80,7 @@ namespace ElaBleCommunication.Wcl.Controllers
 
             _manager = new wclBluetoothManager();
             var result = _manager.Open();
+            if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Error while opening wcl bluetooth manager: 0x{result:X8} {ErrorMessages.Get(result)}");
         }
 
         public void SetRadio(string radioName = null)
@@ -140,18 +142,6 @@ namespace ElaBleCommunication.Wcl.Controllers
         {
             if (string.IsNullOrEmpty(radioName)) return GetAvailableRadios().Count > 0;
             return GetAvailableRadios().Contains(radioName);
-        }
-
-        private void OpenManager()
-        {
-            var result = _manager.Open();
-            if (result != wclErrors.WCL_E_SUCCESS || result != 0x00050001) throw new Exception($"Error opening ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
-        }
-
-        private void CloseManager()
-        {
-            var result = _manager.Close();
-            if (result != wclErrors.WCL_E_SUCCESS || result != 0x00050000) throw new Exception($"Error closing ble manager: 0x{result:X8} {ErrorMessages.Get(result)}");
         }
 
         public void Close()
