@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using ElaSoftwareCommon.Error;
-using ElaBleCommunication.Wcl;
+using ElaBleCommunication.Wcl.Controllers;
 using ElaBleCommunication.Legacy.Windows;
 
 

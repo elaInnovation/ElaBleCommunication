@@ -1,4 +1,4 @@
-﻿using ElaBleCommunication.Wcl;
+﻿using ElaBleCommunication.Wcl.Controllers;
 using ElaBleCommunication.Legacy.Windows;
 using System;
 using System.Windows;

@@ -1,4 +1,5 @@
-﻿using ElaBleCommunication.Wcl;
+﻿using ElaBleCommunication.Wcl.Controllers;
+using ElaBleCommunication.Wcl.Models;
 using ElaBleCommunicationUI.Views;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,13 +12,21 @@ namespace ElaBleCommunicationUI
     public partial class MainWindow : Window
     {
 #if WCL
-        public static WclBleController BleController { get; } = new WclBleController(forUIapp: true);
+        public static WclBleController BleController { get; private set; } 
 #endif
 
         /** \brief constructor */
         public MainWindow()
         {
+#if WCL
+            BleController = new WclBleController(AppTypeEnum.UI);
+#endif
+            Loaded += MainWindow_Loaded;
             InitializeComponent();
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
             initializeInternalComponents();
         }
 
