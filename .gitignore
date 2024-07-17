@@ -17,3 +17,5 @@ ElaBleCommunicationUI/obj/
 /ElaBleCommunication.Legacy/bin
 /ElaBleCommunication.Legacy/obj
 /TestWclLib
+/TestPerformances/bin/Debug/netcoreapp3.1
+/TestPerformances/obj
