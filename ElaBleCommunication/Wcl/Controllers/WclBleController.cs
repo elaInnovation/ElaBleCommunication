@@ -38,6 +38,7 @@ namespace ElaBleCommunication.Wcl.Controllers
         public WclBleController()
         {
             Initialize(AppTypeEnum.Default);
+            SetRadio();
         }
 
         public WclBleController(string radioName)
@@ -83,7 +84,7 @@ namespace ElaBleCommunication.Wcl.Controllers
             if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Error while opening wcl bluetooth manager: 0x{result:X8} {ErrorMessages.Get(result)}");
         }
 
-        public void SetRadio(string radioName = null)
+        private void SetRadio(string radioName = null)
         {
             GetRadio(radioName);
 
