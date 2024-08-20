@@ -1,16 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+	  <TargetFrameworks>netcoreapp3.1;net472;netstandard2.0</TargetFrameworks>
 	  <Platforms>AnyCPU;ARM32</Platforms>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	  <AssemblyVersion>1.0.4</AssemblyVersion>
-	  <FileVersion>1.0.4</FileVersion>
-	  <Version>1.0.4</Version>
+	  <AssemblyVersion>1.0.5</AssemblyVersion>
+	  <FileVersion>1.0.5</FileVersion>
+	  <Version>1.0.5</Version>
   </PropertyGroup>
 
   <ItemGroup>
-  	<!--<PackageReference Include="ElaBleCommunication.Common" Version="1.0.0" />-->
   	<PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.755" />
   </ItemGroup>
 

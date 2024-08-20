@@ -37,10 +37,10 @@ namespace ElaBleCommunication.Legacy.Windows
          *      + ERR_SCANNER_ALREADY_STARTED
          *      + ERR_OK
          */
-        public uint StartBluetoothScanner()
+        public uint StartBluetoothScanner(bool withScanResponse = true)
         {
             if (m_IsStarted) return ErrorServiceHandlerBase.ERR_OK;
-            m_Watcher.ScanningMode = BluetoothLEScanningMode.Active; //Request scan response
+            m_Watcher.ScanningMode = withScanResponse ? BluetoothLEScanningMode.Active : BluetoothLEScanningMode.Passive; //Request scan response
             m_Watcher.Received += Watcher_Received;
             m_Watcher.Start();
 
