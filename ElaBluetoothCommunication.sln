@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElaBleCommunication.Common"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElaBleCommunication.Legacy", "ElaBleCommunication.Legacy\ElaBleCommunication.Legacy.csproj", "{F6579781-D44A-46AF-ADEC-F3469E3CDECC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPerformances", "TestPerformances\TestPerformances.csproj", "{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug WCL|Any CPU = Debug WCL|Any CPU
@@ -69,6 +71,18 @@ Global
 		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Release|ARM32.ActiveCfg = Release|ARM32
 		{F6579781-D44A-46AF-ADEC-F3469E3CDECC}.Release|ARM32.Build.0 = Release|ARM32
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Debug WCL|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Debug WCL|Any CPU.Build.0 = Debug|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Debug WCL|ARM32.ActiveCfg = Debug|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Debug WCL|ARM32.Build.0 = Debug|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Debug|ARM32.ActiveCfg = Debug|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Debug|ARM32.Build.0 = Debug|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Release|ARM32.ActiveCfg = Release|Any CPU
+		{BD5FACB2-2F61-4DFF-BE49-08231B4A45C4}.Release|ARM32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
