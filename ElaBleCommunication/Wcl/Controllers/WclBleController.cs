@@ -18,7 +18,7 @@ namespace ElaBleCommunication.Wcl.Controllers
         public WclBLEScanner Scanner 
         { 
             get {
-                if (_scanner == null) throw new Exception($"Controller not initialized : consider calling {nameof(SetRadio)}() method");
+                if (_scanner == null) throw new WclException($"Wcl scanner not initialized : consider calling {nameof(SetRadio)}() method");
                 return _scanner;  
             }
             private set { _scanner = value; } 
@@ -29,7 +29,7 @@ namespace ElaBleCommunication.Wcl.Controllers
         {
             get
             {
-                if (_connector == null) throw new Exception($"Controller not initialized : consider calling {nameof(SetRadio)}() method");
+                if (_connector == null) throw new WclException($"Wcl connector not initialized : consider calling {nameof(SetRadio)}() method");
                 return _connector;
             }
             private set { _connector = value; }
@@ -81,15 +81,29 @@ namespace ElaBleCommunication.Wcl.Controllers
 
             _manager = new wclBluetoothManager();
             var result = _manager.Open();
-            if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Error while opening wcl bluetooth manager: 0x{result:X8} {ErrorMessages.Get(result)}");
+            if (result == ErrorMessages.WCL_E_BLUETOOTH_MANAGER_OPENED || result == ErrorMessages.WCL_E_BLUETOOTH_MANAGER_EXISTS)
+            {
+                result = _manager.Close();
+                if (result != wclErrors.WCL_E_SUCCESS) throw new WclException(result, "Bluetooth manager was already opeend but unable to close it first");
+                result = _manager.Open();
+            }
+            if (result != wclErrors.WCL_E_SUCCESS) throw new WclException(result, "Error while opening wcl bluetooth manager");
         }
 
-        private void SetRadio(string radioName = null)
+        public void SetRadio(string radioName = null)
         {
-            GetRadio(radioName);
-
-            Scanner = new WclBLEScanner(_radio);
-            Connector = new WclBLEConnector(_radio);
+            try
+            {
+                GetRadio(radioName);
+                Scanner = new WclBLEScanner(_radio);
+                Connector = new WclBLEConnector(_radio);
+            }
+            catch (Exception)
+            {
+                _manager.Close();
+                throw;
+            }
+            
         }
 
         public List<string> GetAvailableRadios()
@@ -115,12 +129,12 @@ namespace ElaBleCommunication.Wcl.Controllers
             if (string.IsNullOrEmpty(radioName))
             {
                 var result = _manager.GetLeRadio(out _radio);
-                if (result != wclErrors.WCL_E_SUCCESS) throw new Exception($"Get working radio failed: 0x{result:X8} {ErrorMessages.Get(result)}");
+                if (result != wclErrors.WCL_E_SUCCESS) throw new WclException(result, "Get working radio failed");
                 _radio.GetName(out _radioName);
             }
             else
             {
-                if (_manager.Count == 0) throw new Exception("No radio could be found");
+                if (_manager.Count == 0) throw new WclException("No radio could be found");
                 for (int i = 0; i < _manager.Count; i++)
                 {
                     if (_manager[i].Available)
@@ -135,14 +149,24 @@ namespace ElaBleCommunication.Wcl.Controllers
                         }
                     }
                 }
-                if (_radio == null) throw new Exception($"No available radio wilth name \"{radioName}\" could be found");
+                if (_radio == null) throw new WclException($"No available radio with name \"{radioName}\" could be found");
             }
         }
 
-        public bool CheckAvailable(string radioName = null)
+        public bool CheckAvailable()
         {
-            if (string.IsNullOrEmpty(radioName)) return GetAvailableRadios().Count > 0;
-            return GetAvailableRadios().Contains(radioName);
+            _manager.Close();
+            _manager.Open();
+
+            try
+            {
+                SetRadio(_radioName);
+                return true;
+            }
+            catch 
+            {
+                return false;
+            }
         }
 
         public void Close()
