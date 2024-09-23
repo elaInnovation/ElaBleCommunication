@@ -17,5 +17,5 @@ ElaBleCommunicationUI/obj/
 /ElaBleCommunication.Legacy/bin
 /ElaBleCommunication.Legacy/obj
 /TestWclLib
-/TestPerformances/bin
-/TestPerformances/obj
+/TestPerformances
+/TestPerfVanillaWcl
