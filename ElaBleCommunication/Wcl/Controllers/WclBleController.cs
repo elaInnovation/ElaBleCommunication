@@ -8,7 +8,6 @@ namespace ElaBleCommunication.Wcl.Controllers
 {
     public class WclBleController
     {
-        private string _radioName = null;
         private wclBluetoothManager _manager;
         private wclBluetoothRadio _radio;
 
@@ -41,17 +40,17 @@ namespace ElaBleCommunication.Wcl.Controllers
             SetRadio();
         }
 
-        public WclBleController(string radioName)
-        {
-            Initialize(AppTypeEnum.Default);
-            SetRadio(radioName);
-        }
+        //public WclBleController(string radioName)
+        //{
+        //    Initialize(AppTypeEnum.Default);
+        //    SetRadio(radioName);
+        //}
 
-        public WclBleController(string radioName, AppTypeEnum appType = AppTypeEnum.Default)
-        {
-            Initialize(appType);
-            SetRadio(radioName);
-        }
+        //public WclBleController(string radioName, AppTypeEnum appType = AppTypeEnum.Default)
+        //{
+        //    Initialize(appType);
+        //    SetRadio(radioName);
+        //}
 
         public WclBleController(AppTypeEnum appType)
         {
@@ -90,11 +89,19 @@ namespace ElaBleCommunication.Wcl.Controllers
             if (result != wclErrors.WCL_E_SUCCESS) throw new WclException(result, "Error while opening wcl bluetooth manager");
         }
 
-        public void SetRadio(string radioName = null)
+        public void SetRadio(wclBluetoothRadio radio = null)
         {
             try
             {
-                GetRadio(radioName);
+                if (radio == null)
+                {
+                    _manager.GetLeRadio(out _radio);
+                }
+                else
+                {
+                    _radio = radio;
+                }
+                
                 Scanner = new WclBLEScanner(_radio);
                 Connector = new WclBLEConnector(_radio);
             }
@@ -106,16 +113,16 @@ namespace ElaBleCommunication.Wcl.Controllers
             
         }
 
-        public List<string> GetAvailableRadios()
+        public List<wclBluetoothRadio> GetAvailableRadios()
         {
-            var radios = new List<string>();
+            var radios = new List<wclBluetoothRadio>();
             for (int i = 0; i < _manager.Count; i++)
             {
                 var currentRadio = _manager[i];
                 if (currentRadio.Available)
                 {
-                    currentRadio.GetName(out var name);
-                    radios.Add(name);
+                    //currentRadio.GetName(out var name);
+                    radios.Add(currentRadio);
                 }
             }
 
@@ -130,7 +137,6 @@ namespace ElaBleCommunication.Wcl.Controllers
             {
                 var result = _manager.GetLeRadio(out _radio);
                 if (result != wclErrors.WCL_E_SUCCESS) throw new WclException(result, "Get working radio failed");
-                _radio.GetName(out _radioName);
             }
             else
             {
@@ -144,7 +150,6 @@ namespace ElaBleCommunication.Wcl.Controllers
                         if (name == radioName)
                         {
                             _radio = currentRadio;
-                            _radioName = radioName;
                             return;
                         }
                     }
@@ -160,7 +165,7 @@ namespace ElaBleCommunication.Wcl.Controllers
 
             try
             {
-                SetRadio(_radioName);
+                SetRadio(_radio);
                 return true;
             }
             catch 
