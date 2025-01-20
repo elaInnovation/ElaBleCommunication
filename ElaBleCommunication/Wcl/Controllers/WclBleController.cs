@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ElaBleCommunication.Wcl.Models;
 using wclBluetooth;
 using wclCommon;
@@ -12,6 +13,8 @@ namespace ElaBleCommunication.Wcl.Controllers
         private wclBluetoothRadio _radio;
 
         public AppTypeEnum AppType { get; private set; }
+        public wclBluetoothApi Api { get; private set; }
+        public bool IsAvailable => _radio.Available;
 
         private WclBLEScanner _scanner;
         public WclBLEScanner Scanner 
@@ -40,22 +43,16 @@ namespace ElaBleCommunication.Wcl.Controllers
             SetRadio();
         }
 
-        //public WclBleController(string radioName)
-        //{
-        //    Initialize(AppTypeEnum.Default);
-        //    SetRadio(radioName);
-        //}
-
-        //public WclBleController(string radioName, AppTypeEnum appType = AppTypeEnum.Default)
-        //{
-        //    Initialize(appType);
-        //    SetRadio(radioName);
-        //}
-
         public WclBleController(AppTypeEnum appType)
         {
             Initialize(appType);
             SetRadio();
+        }
+
+        public WclBleController(AppTypeEnum appType, wclBluetoothApi api)
+        {
+            Initialize(appType);
+            SetRadio(api);
         }
 
         private void Initialize(AppTypeEnum appType)
@@ -89,89 +86,53 @@ namespace ElaBleCommunication.Wcl.Controllers
             if (result != wclErrors.WCL_E_SUCCESS) throw new WclException(result, "Error while opening wcl bluetooth manager");
         }
 
-        public void SetRadio(wclBluetoothRadio radio = null)
+        public void SetRadio(wclBluetoothApi api = wclBluetoothApi.baMicrosoft)
         {
             try
             {
-                if (radio == null)
+                _radio = null;
+
+                var availableRadios = GetAvailableRadios();
+                foreach (var availableRadio in availableRadios)
                 {
-                    _manager.GetLeRadio(out _radio);
+                    if (availableRadio.Api == api)
+                    {
+                        _radio = availableRadio;
+
+                        if (_scanner != null) _scanner.Stop();
+                        Scanner = new WclBLEScanner(_radio);
+                        Connector = new WclBLEConnector(_radio);
+                        Api = api;
+
+                        return;
+                    }
                 }
-                else
-                {
-                    _radio = radio;
-                }
-                
-                Scanner = new WclBLEScanner(_radio);
-                Connector = new WclBLEConnector(_radio);
+
+                if (_radio == null) throw new WclException($"No radio with api {api} could be found");
             }
             catch (Exception)
             {
                 _manager.Close();
                 throw;
             }
-            
         }
 
-        public List<wclBluetoothRadio> GetAvailableRadios()
+        private List<wclBluetoothRadio> GetAvailableRadios()
         {
+            _manager.Close();
+            _manager.Open();
+
             var radios = new List<wclBluetoothRadio>();
             for (int i = 0; i < _manager.Count; i++)
             {
                 var currentRadio = _manager[i];
                 if (currentRadio.Available)
                 {
-                    //currentRadio.GetName(out var name);
                     radios.Add(currentRadio);
                 }
             }
 
             return radios;
-        }
-
-        private void GetRadio(string radioName = null)
-        {
-            _radio = null;
-
-            if (string.IsNullOrEmpty(radioName))
-            {
-                var result = _manager.GetLeRadio(out _radio);
-                if (result != wclErrors.WCL_E_SUCCESS) throw new WclException(result, "Get working radio failed");
-            }
-            else
-            {
-                if (_manager.Count == 0) throw new WclException("No radio could be found");
-                for (int i = 0; i < _manager.Count; i++)
-                {
-                    if (_manager[i].Available)
-                    {
-                        var currentRadio = _manager[i];
-                        currentRadio.GetName(out var name);
-                        if (name == radioName)
-                        {
-                            _radio = currentRadio;
-                            return;
-                        }
-                    }
-                }
-                if (_radio == null) throw new WclException($"No available radio with name \"{radioName}\" could be found");
-            }
-        }
-
-        public bool CheckAvailable()
-        {
-            _manager.Close();
-            _manager.Open();
-
-            try
-            {
-                SetRadio(_radio);
-                return true;
-            }
-            catch 
-            {
-                return false;
-            }
         }
 
         public void Close()

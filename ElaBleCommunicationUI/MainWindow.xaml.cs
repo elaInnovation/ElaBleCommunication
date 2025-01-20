@@ -20,6 +20,7 @@ namespace ElaBleCommunicationUI
         {
 #if WCL
             BleController = new WclBleController(AppTypeEnum.UI);
+            BleController.SetRadio(wclBluetooth.wclBluetoothApi.baBled112);
 #endif
             Loaded += MainWindow_Loaded;
             InitializeComponent();
