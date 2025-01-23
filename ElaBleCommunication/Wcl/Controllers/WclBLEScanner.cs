@@ -220,6 +220,7 @@ namespace ElaBleCommunication.Wcl.Controllers
 
         private const string _regexMac = "(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})";
         private const string _regexReplaceMac = "$1:$2:$3:$4:$5:$6";
+        private string _customFrame = "";
 
         private void ParseAdvertisement(long Address, sbyte Rssi, byte[] Data)
         {
@@ -229,7 +230,16 @@ namespace ElaBleCommunication.Wcl.Controllers
 
                 string payload = "";
                 foreach (byte b in Data) payload += b.ToString("X2");
-                var data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload);
+
+                ElaBaseData data;
+                if (string.IsNullOrEmpty(_customFrame))
+                {
+                    data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload);
+                }
+                else
+                {
+                    data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload, _customFrame);
+                }
 
                 data.id = macAddress;
                 data.rssi = Rssi;
@@ -244,6 +254,16 @@ namespace ElaBleCommunication.Wcl.Controllers
             {
                 Console.WriteLine($"[{nameof(WclBLEScanner)}][{nameof(ParseAdvertisement)}] Error while parsing received advertisement frame: {ex.Message}");
             }
+        }
+
+        public void SetCustomFrame(string costumFrame)
+        {
+            _customFrame = costumFrame;
+        }
+
+        public void ClearCustomFrame()
+        {
+            _customFrame = string.Empty;
         }
 
         private void Debug(long address, string message)
