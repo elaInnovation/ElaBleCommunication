@@ -118,7 +118,7 @@ namespace ElaBleCommunication.Wcl.Controllers
                 if (!_isStarted) return ErrorServiceHandlerBase.ERR_OK;
 
                 _stopScanFlag.Set();
-                _scanningThread.Join();
+                //_scanningThread.Join();
                 _scanningThread = null;
 
                 ClearResponses();
