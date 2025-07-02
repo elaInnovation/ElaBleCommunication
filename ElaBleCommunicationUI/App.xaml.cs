@@ -20,7 +20,9 @@ namespace ElaBleCommunicationUI
 
         private void App_Exit(object sender, ExitEventArgs e)
         {
+#if WCL
             ElaBleCommunicationUI.MainWindow.BleController.Close();
+#endif
         }
     }
 }
