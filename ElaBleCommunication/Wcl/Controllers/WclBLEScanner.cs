@@ -14,6 +14,9 @@ using wclCommon;
 using System.Linq;
 using System.Net;
 using ElaBleCommunication.Wcl.Models;
+using ElaTagClassLibrary.ElaTags.Elason.Syntax;
+using MongoDB.Bson.IO;
+using System.Xml;
 
 
 namespace ElaBleCommunication.Wcl.Controllers
@@ -38,6 +41,8 @@ namespace ElaBleCommunication.Wcl.Controllers
 
         private object _ScanResponsesLock = new object();
         private Dictionary<long, ScanResponse> _scanResponses = new Dictionary<long, ScanResponse>();
+
+        private bool _coldChainMode = false;
 
         public bool IsScanning { get => _isStarted; }
 
@@ -226,18 +231,26 @@ namespace ElaBleCommunication.Wcl.Controllers
             try
             {
                 string macAddress = Regex.Replace(string.Format("{0:X}", Address), _regexMac, _regexReplaceMac);
-
+                
                 string payload = "";
                 foreach (byte b in Data) payload += b.ToString("X2");
 
+
                 ElaBaseData data;
-                if (string.IsNullOrEmpty(_customFrame))
+
+                if (!string.IsNullOrEmpty(_customFrame))
                 {
-                    data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload);
+                    data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload, _customFrame);
+                }
+                else if (_coldChainMode)
+                {
+                    
+                    data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload, FrameDefinition.ColdChain);
+                    
                 }
                 else
                 {
-                    data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload, _customFrame);
+                    data = InteroperableDeviceFactory.getInstance().get(ElaTagTechno.Bluetooth, payload);
                 }
 
                 data.id = macAddress;
@@ -264,7 +277,10 @@ namespace ElaBleCommunication.Wcl.Controllers
         {
             _customFrame = string.Empty;
         }
-
+        public void SetColdChainMode(bool enable)
+        {
+            _coldChainMode = enable;
+        }
         private void Debug(long address, string message)
         {
 #if DEBUG

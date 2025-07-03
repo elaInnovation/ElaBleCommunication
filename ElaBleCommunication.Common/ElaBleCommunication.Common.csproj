@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ElaTagClassLibrary" Version="3.3.1" />
+    <PackageReference Include="ElaTagClassLibrary" Version="3.3.14" />
   </ItemGroup>
 
 </Project>

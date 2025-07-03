@@ -46,6 +46,9 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -128,7 +131,7 @@
       <Version>1.3.27</Version>
     </PackageReference>
     <PackageReference Include="ElaTagClassLibrary">
-      <Version>3.1.5</Version>
+      <Version>3.3.14</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
