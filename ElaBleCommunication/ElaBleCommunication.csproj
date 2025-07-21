@@ -10,7 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="ElaTagClassLibrary" Version="3.3.14" />
 	<PackageReference Include="System.IO.Ports" Version="4.7.0" />
 	<PackageReference Include="wclBluetoothFramework" Version="7.17.10.2" />
 	<PackageReference Include="ElaBleCommunication.Common" Version="1.0.2" />
